@@ -13,7 +13,8 @@
 	 * @KdudeDev - InfiniteMath Developer
 	 
 	 * Everything Upgrade Tree (and other incrementals)
-]]--
+]]
+--
 
 -- // Constants \\ --
 
@@ -23,48 +24,154 @@ const AN = {}
 AlephNum.__index = AN
 AlephNum.Config = {
 	["StrictMode"] = false,
-	
+
 	["Notation"] = "Scientific",
-		["SciNotation"] = "None",
-		--["SciParenthesis"] = true,
+	["SciNotation"] = "None",
+	--["SciParenthesis"] = true,
 	["Threshold"] = 1e3,
 	["Digits"] = 2,
 }
 
 const zero: AN = {
-	Sign = 0 :: number, 
-	Layer = 0 :: number, 
-	Exp = 0 :: number, 
-	Mantissa = 0 :: number
+	Sign = 0 :: number,
+	Layer = 0 :: number,
+	Exp = 0 :: number,
+	Mantissa = 0 :: number,
 }
 
 const expLimit = 1e10
 const inf = 1e308
 
-const compareStrings = {"==", ">=", "<=", ">", "<", "!=", "~="}
+const compareStrings = { "==", ">=", "<=", ">", "<", "!=", "~=" }
 
 const suffixes = {
-	sets = {"k","M","B"},
-	firstSuffixes = {"U","D","T","Qd","Qn","Sx","Sp","Oc","No"},
-	secondSuffixes = {"De","Vt","Tg","qg","Qg","sg","Sg","Og","Ng"},
-	thirdSuffixes = {"Ce", "Du","Tr","Qa","Qi","Se","Si","Ot","Ni"},
-	multSuffixes = {"Mi","Mc","Na","Pi","Fm","At","Zp","Yc", "Xo", "Ve", "Me", "Due", "Tre", "Te", "Pt", "He", "Hp", "Oct", "En", "Ic", "Mei", "Dui", "Tri", "Teti", "Pti", "Hei", "Hp", "Oci", "Eni", "Tra","TeC", "MTc","DTc","TrTc","TeTc","PeTc","HTc","HpT","OcT","EnT","TetC","MTetc", "DTetc","TrTetc","TeTetc","PeTetc","HTetc","HpTetc","OcTetc","EnTetc","PcT", "MPcT","DPcT","TPCt","TePCt","PePCt","HePCt","HpPct","OcPct","EnPct","HCt", "MHcT","DHcT","THCt","TeHCt","PeHCt","HeHCt","HpHct","OcHct","EnHct","HpCt", "MHpcT","DHpcT","THpCt","TeHpCt","PeHpCt","HeHpCt","HpHpct","OcHpct","EnHpct", "OCt","MOcT","DOcT","TOCt","TeOCt","PeOCt","HeOCt","HpOct","OcOct","EnOct","Ent","MEnT", "DEnT","TEnt","TeEnt","PeEnt","HeEnt","HpEnt","OcEnt","EnEnt","Hect", "MeHect"}
+	sets = { "k", "M", "B" },
+	firstSuffixes = { "U", "D", "T", "Qd", "Qn", "Sx", "Sp", "Oc", "No" },
+	secondSuffixes = { "De", "Vt", "Tg", "qg", "Qg", "sg", "Sg", "Og", "Ng" },
+	thirdSuffixes = { "Ce", "Du", "Tr", "Qa", "Qi", "Se", "Si", "Ot", "Ni" },
+	multSuffixes = {
+		"Mi",
+		"Mc",
+		"Na",
+		"Pi",
+		"Fm",
+		"At",
+		"Zp",
+		"Yc",
+		"Xo",
+		"Ve",
+		"Me",
+		"Due",
+		"Tre",
+		"Te",
+		"Pt",
+		"He",
+		"Hp",
+		"Oct",
+		"En",
+		"Ic",
+		"Mei",
+		"Dui",
+		"Tri",
+		"Teti",
+		"Pti",
+		"Hei",
+		"Hp",
+		"Oci",
+		"Eni",
+		"Tra",
+		"TeC",
+		"MTc",
+		"DTc",
+		"TrTc",
+		"TeTc",
+		"PeTc",
+		"HTc",
+		"HpT",
+		"OcT",
+		"EnT",
+		"TetC",
+		"MTetc",
+		"DTetc",
+		"TrTetc",
+		"TeTetc",
+		"PeTetc",
+		"HTetc",
+		"HpTetc",
+		"OcTetc",
+		"EnTetc",
+		"PcT",
+		"MPcT",
+		"DPcT",
+		"TPCt",
+		"TePCt",
+		"PePCt",
+		"HePCt",
+		"HpPct",
+		"OcPct",
+		"EnPct",
+		"HCt",
+		"MHcT",
+		"DHcT",
+		"THCt",
+		"TeHCt",
+		"PeHCt",
+		"HeHCt",
+		"HpHct",
+		"OcHct",
+		"EnHct",
+		"HpCt",
+		"MHpcT",
+		"DHpcT",
+		"THpCt",
+		"TeHpCt",
+		"PeHpCt",
+		"HeHpCt",
+		"HpHpct",
+		"OcHpct",
+		"EnHpct",
+		"OCt",
+		"MOcT",
+		"DOcT",
+		"TOCt",
+		"TeOCt",
+		"PeOCt",
+		"HeOCt",
+		"HpOct",
+		"OcOct",
+		"EnOct",
+		"Ent",
+		"MEnT",
+		"DEnT",
+		"TEnt",
+		"TeEnt",
+		"PeEnt",
+		"HeEnt",
+		"HpEnt",
+		"OcEnt",
+		"EnEnt",
+		"Hect",
+		"MeHect",
+	},
 }
 
 const scriptLocation: string = script:GetFullName()
 
 -- // Types \\ --
 
-export type AN = typeof(setmetatable({} :: {
-	Sign: number,
-	Layer: number,
-	Exp: number,
-	Mantissa: number,
-}, AlephNum))
+export type AN = typeof(setmetatable(
+	{} :: {
+		Sign: number,
+		Layer: number,
+		Exp: number,
+		Mantissa: number,
+	},
+	AlephNum
+))
 
 -- // Functions \\ --
 
-const function reverse<T>(tbl: {T}): {T}
+const function reverse<T>(tbl: { T }): { T }
 	local result = table.create(#tbl)
 
 	for i = 1, #tbl do
@@ -78,9 +185,10 @@ const function isNIL(value: any): boolean
 	return (value == nil)
 end
 
-const function isAN(value: (AN | any)): boolean
+const function isAN(value: AN | any): boolean
 	return (
-		typeof(value) == "table" and (not isNIL(value["Sign"]) and not isNIL(value["Layer"]) and not isNIL(value["Exp"]))
+		typeof(value) == "table"
+		and (not isNIL(value["Sign"]) and not isNIL(value["Layer"]) and not isNIL(value["Exp"]))
 	)
 end
 
@@ -88,7 +196,7 @@ const function toNumber(value: AN): number
 	if typeof(value) == "number" then
 		return value
 	end
-	
+
 	if isAN(value.Layer) or value.Layer > 1 then
 		return math.huge
 	end
@@ -104,9 +212,9 @@ const function getDepth(value: AN?): number
 	if typeof(value) ~= "table" then
 		return 0
 	end
-	
+
 	local depth = 0
-	
+
 	repeat
 		if value and typeof(value) == "table" then
 			value = value.Layer
@@ -115,7 +223,7 @@ const function getDepth(value: AN?): number
 			break
 		end
 	until false
-	
+
 	return depth
 end
 
@@ -124,23 +232,23 @@ const function correct(value: AN): AN
 		value = zero
 		return value
 	end
-	
+
 	-- ~ Nil Checks ~ --
 	value.Exp = value.Exp or 0
 	value.Layer = value.Layer or 0
 	value.Mantissa = math.abs(value.Mantissa or 1)
-	
+
 	-- ~ Layer to Number/AN ~ --
 	if isAN(value.Layer) and toNumber(value.Layer) < inf then
-		print('layerback')
+		print("layerback")
 		value.Layer = toNumber(value.Layer)
 	end
-	
+
 	if not isAN(value.Layer) and (not isNIL(value.Layer) and value.Layer >= inf) then
-		print('layeragain', value.Layer)
+		print("layeragain", value.Layer)
 		value.Layer = AlephNum.fromNumber(value.Layer)
 	end
-	
+
 	-- ~ Layer Down ~ --
 	while toNumber(value.Layer) > 0 and value.Exp == 0 do
 		value.Layer -= 1
@@ -152,13 +260,13 @@ const function correct(value: AN): AN
 			break
 		end
 	end
-	
+
 	-- ~ Cleanup ~ --
 	if value.Exp ~= value.Exp or math.isinf(value.Exp) then
 		value.Exp = expLimit - 1
 		value.Layer += 1
 	end
-	
+
 	if value.Mantissa ~= value.Mantissa or math.isinf(value.Mantissa) then
 		value.Mantissa = 1
 	end
@@ -166,29 +274,29 @@ const function correct(value: AN): AN
 	if value.Exp == 0 and value.Mantissa == 0 then
 		value = zero
 	end
-	
+
 	if math.sign(value.Exp) ~= 0 and value.Sign == 0 then
 		value.Sign = 1
 	end
-	
+
 	if value.Mantissa >= 10 then
 		local loggedMantissa = value.Mantissa
-		
+
 		for index: number = 1, value.Layer do
 			loggedMantissa = math.log10(loggedMantissa)
 			value.Mantissa /= 10
 		end
-		
+
 		const mantissaLog = math.floor(loggedMantissa)
 		value.Exp += mantissaLog
 	end
-	
+
 	-- ~ Layer 0 ~ --
 	if value.Layer == 0 then
 		value.Exp = value.Exp * value.Mantissa
 		value.Mantissa = 1
 	end
-	
+
 	if value.Layer == 0 and math.sign(value.Exp) == -1 then
 		value.Sign = -value.Sign
 		value.Exp = -value.Exp
@@ -208,14 +316,14 @@ const function correct(value: AN): AN
 
 	if value.Layer == 1 then
 		const leftoverExp = value.Exp - math.floor(value.Exp)
-		
+
 		if leftoverExp > 0 and leftoverExp < 1 then
 			value.Mantissa *= math.pow(10, leftoverExp)
 		end
-		
+
 		value.Exp = math.floor(value.Exp)
 	end
-	
+
 	-- ~ Layer 2+ ~ --
 	-- layer 2+ cleanups later
 
@@ -227,7 +335,7 @@ const function tupleNum(Sign: number, Layer: number, Exp: number, Mantissa: numb
 		Sign = Sign,
 		Layer = Layer,
 		Exp = Exp,
-		Mantissa = Mantissa
+		Mantissa = Mantissa,
 	}, AlephNum)
 
 	return correct(new)
@@ -237,7 +345,12 @@ const function toMeta(value: AN): AN
 	return setmetatable(value, AlephNum)
 end
 
-const function cmp(value1: AN, value2: AN, name: ("Sign" | "Exp" | "Layer" | "Mantissa"), compareString: ("==" | ">=" | "<=" | ">" | "<" | "!=" | "~=")): boolean
+const function cmp(
+	value1: AN,
+	value2: AN,
+	name: "Sign" | "Exp" | "Layer" | "Mantissa",
+	compareString: "==" | ">=" | "<=" | ">" | "<" | "!=" | "~="
+): boolean
 	local result: boolean = false
 
 	local cmp1 = value1[name]
@@ -249,15 +362,9 @@ const function cmp(value1: AN, value2: AN, name: ("Sign" | "Exp" | "Layer" | "Ma
 	end
 
 	if compareString == ">" or compareString == ">=" then
-		result = (
-			compareString == ">" and (cmp1 > cmp2) or
-				(compareString == ">=" and (cmp1 >= cmp2))
-		)
+		result = (compareString == ">" and (cmp1 > cmp2) or (compareString == ">=" and (cmp1 >= cmp2)))
 	elseif compareString == "<" or compareString == "<=" then
-		result = (
-			compareString == "<" and (cmp1 < cmp2) or
-				(compareString == "<=" and (cmp1 <= cmp2))
-		)
+		result = (compareString == "<" and (cmp1 < cmp2) or (compareString == "<=" and (cmp1 <= cmp2)))
 	end
 
 	return result
@@ -265,48 +372,48 @@ end
 
 const function tierSuffix(tier: number, smallTierSuffix: boolean, exp: number): string
 	tier = math.abs(math.round(tier))
-	
+
 	if tier <= 3 and not smallTierSuffix then
 		return suffixes.sets[tier]
 	elseif tier < 1000 or smallTierSuffix then
 		if not smallTierSuffix then
 			tier -= 1
-		elseif tier > 1000 then 
-			tier = math.fmod(tier, 1000) 
+		elseif tier > 1000 then
+			tier = math.fmod(tier, 1000)
 		end
-		
+
 		const ones = tier % 10
 		const tens = math.floor(tier / 10) % 10
 		const hundreds = math.floor(tier / 100) % 10
-		
+
 		local endResult: string = ""
-		
+
 		if ones > 0 then
 			endResult ..= suffixes.firstSuffixes[ones]
 		end
-		
+
 		if tens > 0 then
 			endResult ..= suffixes.secondSuffixes[tens]
 		end
-		
+
 		if hundreds > 0 then
 			endResult ..= suffixes.thirdSuffixes[hundreds]
 		end
-		
+
 		return endResult
 	else
 		local endResult: string = ""
-		
+
 		local firstChunk: boolean = true
 		const idxStart: number = math.floor(math.log10(exp))
-		
+
 		for index: number = idxStart, 0, -1 do
-			if exp >= 10^(index * 3) then
-				local chunk: number = math.floor(tier / 10^(index * 3))
+			if exp >= 10 ^ (index * 3) then
+				local chunk: number = math.floor(tier / 10 ^ (index * 3))
 				local suffix: string? = tierSuffix(chunk - 1, true)
-				
+
 				const multSuffix: string = suffixes.multSuffixes[index + 1] or ""
-				
+
 				if firstChunk then
 					if chunk == 1 then
 						suffix = ""
@@ -316,44 +423,44 @@ const function tierSuffix(tier: number, smallTierSuffix: boolean, exp: number): 
 				else
 					suffix = tierSuffix(chunk - 1, true)
 				end
-				
+
 				if firstChunk then
 					firstChunk = false
 					endResult ..= suffix
 				else
 					endResult ..= `{multSuffix}{suffix}`
 				end
-				
+
 				exp = math.fmod(exp, 10 ^ (index * 3))
 				tier = math.fmod(tier, 10 ^ (index * 3))
 			end
 		end
-		
+
 		return endResult
 	end
 end
 
 const function debugWhere(): (string, string)
 	local level = 0
-	
+
 	local scriptName: string = debug.info(level, "s")
 	local line: string = debug.info(level, "l")
-	
+
 	repeat
 		scriptName = debug.info(level, "s")
 		line = debug.info(level, "l")
-		
+
 		level += 1
-		
+
 		if level > 25 then
 			scriptName = "[NIL]"
 			line = "[NIL]"
-			
+
 			break
 		end
-		
+
 	until level > 0 and not scriptLocation:find(scriptName) and scriptName ~= "[C]" and line > 0
-	
+
 	return scriptName, line
 end
 
@@ -363,17 +470,17 @@ const function layerUp(value: AN): AN
 			Sign = value.Sign,
 			Layer = 1,
 			Exp = 0,
-			Mantissa = value.Exp
+			Mantissa = value.Exp,
 		}
 	elseif value.Exp == 0 then
 		return {
 			Sign = value.Sign,
 			Layer = value.Layer + 1,
 			Exp = 0,
-			Mantissa = value.Mantissa
+			Mantissa = value.Mantissa,
 		}
 	end
-	
+
 	const baseExp: number = math.log10(value.Exp)
 	const newExp: number = math.floor(baseExp)
 
@@ -384,7 +491,7 @@ const function layerUp(value: AN): AN
 		Sign = value.Sign,
 		Layer = newLayer,
 		Exp = newExp,
-		Mantissa = newMantissa
+		Mantissa = newMantissa,
 	}
 end
 
@@ -396,9 +503,9 @@ end
 -- [>] Input a (string), (number), or (Sign, Layer, Exp, Mantissa) to create a new AlephNum.
 -- [<] Returns an AlephNum (AN) number.
 --  *  [+] You can also use convert, fromNumber, fromString, or fromTuple instead depending on your use case.
-function AlephNum.new(...) : AN
-	const tuple: {string | number} = {...}
-	const doConvert: boolean = (not tuple[2])
+function AlephNum.new(...): AN
+	const tuple: { string | number } = { ... }
+	const doConvert: boolean = not tuple[2]
 
 	local result: AN = nil
 
@@ -418,7 +525,7 @@ end
 -- [?] Creates a new AlephNum (AN) number.
 -- [>] Input a (Sign, Layer, Exp, Mantissa) to create a new AlephNum.
 -- [<] Returns an AlephNum (AN) number.
-function AlephNum.fromTuple(Sign: number, Layer: number, Exp: number, Mantissa: number) : AN
+function AlephNum.fromTuple(Sign: number, Layer: number, Exp: number, Mantissa: number): AN
 	return AlephNum.fix(tupleNum(Sign, Layer, Exp, Mantissa))
 end
 
@@ -428,7 +535,7 @@ end
 -- [>] Input a (string), (number) or (AN) value.
 -- [<] Returns an AlephNum (AN) number.
 --  *  [+] You can also use fromString or fromNumber instead depending on your use case.
-function AlephNum.convert(value: (string | number | AN)): AN
+function AlephNum.convert(value: string | number | AN): AN
 	local newValue: AN = nil
 
 	if not value then
@@ -457,7 +564,7 @@ end
 function AlephNum.fix(value: any)
 	if isNIL(value) then
 		const scriptName: string, line: string = debugWhere()
-		
+
 		warn(`┏ [AlephNum] A value is nil! Defaulting to zero.`)
 		warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
 
@@ -467,13 +574,13 @@ function AlephNum.fix(value: any)
 
 		return toMeta(zero)
 	end
-	
+
 	if isAN(value) then
 		value = correct(value)
 	else
 		value = AlephNum.convert(value)
 	end
-	
+
 	return toMeta(value)
 end
 
@@ -486,17 +593,8 @@ function AlephNum.clone(value: AN): AN
 	if not isAN(value) then
 		value = AlephNum.fix(value)
 	end
-	
-	return table.clone(
-		toMeta(
-			tupleNum(
-				value.Sign, 
-				value.Layer, 
-				value.Exp, 
-				value.Mantissa
-			)
-		)
-	)
+
+	return table.clone(toMeta(tupleNum(value.Sign, value.Layer, value.Exp, value.Mantissa)))
 end
 
 -- ~ AlephNum.normalize() ~ -
@@ -504,36 +602,36 @@ end
 -- [>] Input any value type.
 -- [<] Returns an AlephNum (AN) number.
 --  * [+] Not reccomended to use really.
-function AlephNum.normalize(value: AN, layer: (number | AN)): AN
+function AlephNum.normalize(value: AN, layer: number | AN): AN
 	if value.Layer ~= layer then
 		local stop: boolean
-		
+
 		repeat
 			if value.Exp <= 0 or getDepth(value.Layer) < getDepth(layer) then
 				if getDepth(value.Layer) < getDepth(layer) then
-					print('briueh')
+					print("briueh")
 					value.Exp = 0
 					value.Mantissa = 0
 					value.Sign = 0
 				end
-				
-				break 
+
+				break
 			end
-			
+
 			if typeof(value.Layer) == "number" then
 				stop = (value.Layer >= layer)
 			else
 				print(isAN(value.Layer), isAN(layer), typeof(value.Layer) == "number")
 				task.wait()
 			end
-			
+
 			value = layerUp(value)
 		until stop
-		
+
 		value.Layer = layer
 		print(value.Layer)
 	end
-	
+
 	return value
 end
 
@@ -545,18 +643,18 @@ end
 function AlephNum.normalizeTwo(value1: AN, value2: AN): (AN, AN)
 	if value1.Layer ~= value2.Layer then
 		local oneGreater: boolean
-		
-		print('bef', oneGreater)
-		
+
+		print("bef", oneGreater)
+
 		if typeof(value1.Layer) == "number" and typeof(value2.Layer) == "number" then
 			oneGreater = value1.Layer > value2.Layer
 		else
 			local depth = math.min(getDepth(value1.Layer), getDepth(value2.Layer))
-			
+
 			repeat
 				local v1 = value1
 				local v2 = value2
-				
+
 				for i = 1, depth do
 					if typeof(v1) == "number" or typeof(v2) == "number" then
 						continue
@@ -565,32 +663,32 @@ function AlephNum.normalizeTwo(value1: AN, value2: AN): (AN, AN)
 					v1 = v1["Layer"]
 					v2 = v2["Layer"]
 				end
-				
+
 				if typeof(v1) == "number" and typeof(v2) == "number" then
 					oneGreater = v1 > v2
 				else
 					oneGreater = (isAN(v1) and not isAN(v2))
 				end
-				
+
 				if oneGreater then
 					break
 				end
-				
+
 				depth += 1
 			until not isNIL(oneGreater)
 		end
-		
+
 		print(oneGreater)
-		
+
 		if oneGreater then
 			value2 = AlephNum.normalize(value2, value1.Layer)
 		else
 			value1 = AlephNum.normalize(value1, value2.Layer)
 		end
 	else
-		print('what')
+		print("what")
 	end
-	
+
 	return value1, value2
 end
 
@@ -602,18 +700,13 @@ end
 --  *  [+] You can also use AlephNum.convert() instead depending on your use case.
 function AlephNum.fromNumber(value: number): AN
 	value = tonumber(value)
-	
+
 	if typeof(value) ~= "number" then
 		return AlephNum.convert(value)
 	end
-	
+
 	if math.isinf(value) then
-		return AlephNum.fromTuple(
-			math.sign(value),
-			1,
-			308,
-			1
-		)
+		return AlephNum.fromTuple(math.sign(value), 1, 308, 1)
 	end
 
 	const abs: number = math.abs(value)
@@ -622,7 +715,7 @@ function AlephNum.fromNumber(value: number): AN
 	if abs >= 1e15 then
 		const exp: number = math.floor(math.log10(abs))
 		const mantissa: number = abs / math.pow(10, exp)
-		
+
 		newValue = AlephNum.fromTuple(math.sign(value), 1, exp, mantissa)
 	else
 		newValue = AlephNum.fromTuple(math.sign(value), 0, abs, 1)
@@ -635,26 +728,29 @@ end
 -- ------------------
 -- [?] Changes settings in the AlephNum config.
 -- [>] Input a configName (string) and a (boolean) value.
-function AlephNum.setConfig(configName: ("StrictMode" | "Notation" | "Digits" | "Threshold" | "SciNotation"), value: any): ()
+function AlephNum.setConfig(
+	configName: "StrictMode" | "Notation" | "Digits" | "Threshold" | "SciNotation",
+	value: any
+): ()
 	const setting: any = AlephNum.Config[configName]
 
 	if not isNIL(setting) then
 		const baseType: string = typeof(AlephNum.Config[configName])
 		const valueType: string = typeof(value)
-		
+
 		if baseType ~= value then
 			const scriptName: string, line: string = debugWhere()
-			
+
 			warn(`┏ [AlephNum] Expected {baseType} for {configName}, got {valueType}. ({value})`)
 			warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
 
 			if AlephNum.Config.StrictMode then
 				error(`Strict Mode enabled! Halting the script..`, 4)
 			end
-			
+
 			return
 		end
-		
+
 		AlephNum.Config[configName] = value
 	else
 		const scriptName: string, line: string = debugWhere()
@@ -677,11 +773,11 @@ end
 --  *  [+] For AlephNumbers above Layer 1, they cannot be converted normally. (will return INF)
 function AlephNum.toNumber(value: AN): number
 	value = AlephNum.fix(value)
-	
+
 	if value.Layer > 1 then
 		return math.huge
 	end
-	
+
 	if value.Layer == 0 then
 		return value.Sign * value.Mantissa * value.Exp
 	else
@@ -704,35 +800,32 @@ function AlephNum.fromString(value: string): AN
 	end
 
 	const valueNum: number? = tonumber(value)
-	const sciSlice: {string?} = value:split("e")
-	const defSlice: {string?} = value:split(";")
+	const sciSlice: { string? } = value:split("e")
+	const defSlice: { string? } = value:split(";")
 
 	if not isNIL(valueNum) and not math.isinf(valueNum) and not value:find("e") and not value:find(";") then
 		newValue = tupleNum(math.sign(valueNum), 0, math.abs(valueNum), 1)
 	elseif #sciSlice >= 2 then
 		newValue = nil
-		
+
 		for index = #sciSlice, 1, -1 do
 			local old: AN
-			
+
 			const current: string = sciSlice[index]
 			const number: number = tonumber(current)
-			
+
 			if not number then
 				continue
 			end
-			
+
 			if not newValue then
 				newValue = AlephNum.fromNumber(number)
 				continue
 			else
 				old = AlephNum.clone(newValue)
 			end
-			
-			newValue = AlephNum.mul(
-				AlephNum.fromNumber(number),
-				AlephNum.pow(10, old)
-			)
+
+			newValue = AlephNum.mul(AlephNum.fromNumber(number), AlephNum.pow(10, old))
 		end
 	elseif #defSlice == 2 then
 		const mantissa = tonumber(defSlice[1]) or 1
@@ -750,66 +843,69 @@ end
 -- [>] Input an AlephNum number and a table of options (optional).
 -- [<] Returns a string.
 --  *  [+] You can also change the default config using setConfig() instead of typing the options every time!
-function AlephNum.toString(value: AN, options: {Notation: ("None" | "Scientific" | "Suffix"), Threshold: number, Digits: number}): string
+function AlephNum.toString(
+	value: AN,
+	options: { Notation: "None" | "Scientific" | "Suffix", Threshold: number, Digits: number }
+): string
 	value = AlephNum.fix(value)
-	
+
 	options = options or {}
 	options.Notation = options.Notation or AlephNum.Config.Notation
 	options.Digits = math.abs(options.Digits or AlephNum.Config.Digits)
 	options.Threshold = math.abs(options.Threshold or AlephNum.Config.Threshold)
-	
+
 	const notation: string = options.Notation
 	const digits: number = options.Digits
 	const threshold: number = math.clamp(options.Threshold, 1e3, math.huge)
-	
+
 	const digitPower: number = math.pow(10, digits)
-	
+
 	const abs = AlephNum.abs(value)
-	
+
 	if notation == "None" or AlephNum.cmp(abs, threshold, "<") then
 		return tostring(value:toNumber())
 	end
-	
+
 	if notation == "Scientific" then
 		if value.Layer == 0 then
 			local exp: number = math.floor(math.log10(value.Exp))
-			
+
 			const baseMantissa: number = value.Exp / (10 ^ exp)
 			const formattedMantissa: number = math.round(baseMantissa * digitPower) / digitPower
-			
+
 			if AlephNum.Config.SciNotation == "Suffix" and exp >= threshold then
-				return (`{formattedMantissa}e{AlephNum.toSuffix(exp, digits, threshold)}`)
+				return `{formattedMantissa}e{AlephNum.toSuffix(exp, digits, threshold)}`
 			else
-				return (`{formattedMantissa}e{exp}`)
+				return `{formattedMantissa}e{exp}`
 			end
 		elseif value.Layer == 1 then
 			local exp: number = math.floor(value.Exp)
-			
+
 			const baseMantissa: number = value.Mantissa
 			const formattedMantissa: number = math.round(baseMantissa * digitPower) / digitPower
-			
+
 			if AlephNum.Config.SciNotation == "Suffix" and exp >= threshold then
-				return (`{formattedMantissa}e{AlephNum.toSuffix(exp, digits, threshold)}`)
+				return `{formattedMantissa}e{AlephNum.toSuffix(exp, digits, threshold)}`
 			else
-				return (`{formattedMantissa}e{exp}`)
+				return `{formattedMantissa}e{exp}`
 			end
 		else
 			if AlephNum.Config.SciNotation == "Suffix" then
 				const mantissa = value.Mantissa
 				const formattedMantissa = math.round(mantissa * digitPower) / digitPower
-				
+
 				local newExp: AN = AlephNum.fromNumber(value.Exp)
-				
+
 				for index: number = 1, value.Layer - 1 do
 					newExp = AlephNum.pow10(newExp)
 				end
-				
-				return (`{formattedMantissa}e{AlephNum.toSuffix(newExp, digits, threshold)}`)
+
+				return `{formattedMantissa}e{AlephNum.toSuffix(newExp, digits, threshold)}`
 			end
-			
+
 			const clone: AN = AlephNum.clone(value)
-			local numbers: {number} = {}
-			
+			local numbers: { number } = {}
+
 			while clone.Layer >= 0 do
 				if clone.Layer == value.Layer then
 					table.insert(numbers, math.floor(clone.Exp))
@@ -818,53 +914,53 @@ function AlephNum.toString(value: AN, options: {Notation: ("None" | "Scientific"
 				elseif clone.Layer == value.Layer - 1 then
 					const floor = math.floor(clone.Exp)
 					const extra = clone.Exp - floor
-					
+
 					table.insert(numbers, 1 * (10 ^ extra))
 				else
 					table.insert(numbers, 1)
 				end
-				
+
 				clone.Layer -= 1
 			end
-			
+
 			numbers = reverse(numbers)
-			
+
 			local result: string = ""
-			
+
 			for index: number, value: number in ipairs(numbers) do
 				const formattedValue = math.round(value * digitPower) / digitPower
-				
+
 				result ..= formattedValue
-				
+
 				if not isNIL(numbers[index + 1]) then
 					result ..= "e"
 				end
 			end
-			
+
 			return result
 		end
 	elseif notation == "Suffix" then -- unfinished
 		local baseTier: number
-		
+
 		local log10: number = AlephNum.log10(value):toNumber()
 		local div3: number = log10 / 3
-		
+
 		if value.Layer == 0 then
 			baseTier = math.floor(div3)
 		elseif value.Layer == 1 then
 			log10 = value.Exp
 			div3 = log10 / 3
-			
+
 			baseTier = math.floor(div3)
 		else
 			return AlephNum.toScientific(value, digits, threshold)
 		end
-		
+
 		const tier = math.floor(baseTier)
 		const extra = div3 - math.floor(div3)
-		
+
 		local mantissa: number
-		
+
 		if value.Layer == 0 then
 			const exp: number = math.floor(math.log10(value.Exp))
 
@@ -874,31 +970,31 @@ function AlephNum.toString(value: AN, options: {Notation: ("None" | "Scientific"
 			const baseMantissa: number = value.Mantissa
 			mantissa = math.round(baseMantissa * digitPower) / digitPower
 		end
-		
+
 		if mantissa >= 10 then
 			repeat
 				mantissa /= 10
 			until mantissa < 10
 		end
-		
+
 		if extra > 0 then
-			if extra >= .5 then
+			if extra >= 0.5 then
 				mantissa *= 10
 			end
-			
-			if extra >= .8 then
+
+			if extra >= 0.8 then
 				mantissa *= 10
 			end
 		end
-		
+
 		return `{mantissa}{tierSuffix(tier, false, value.Exp)}`
 	else
 		const scriptName: string, line: string = debugWhere()
 
 		warn(`┏ [AlephNum] "{notation}" is not a valid Notation!`)
 		warn(`┃  ╸ Go to script: {scriptName} on line {line} to fix this.`)
-		warn(`┗  ╸ See valid notations here:`, {"None", "Scientific", "Suffix"})
-		
+		warn(`┗  ╸ See valid notations here:`, { "None", "Scientific", "Suffix" })
+
 		return tostring(value:toNumber())
 	end
 end
@@ -909,7 +1005,7 @@ end
 -- [>] Input an AlephNum number and some options (optional).
 -- [<] Returns a string. (10000 -> 10k for example)
 function AlephNum.toSuffix(value: AN, digits: number?, threshold: number?)
-	return AlephNum.toString(value, {Digits = digits, Notation = "Suffix", Threshold = threshold})
+	return AlephNum.toString(value, { Digits = digits, Notation = "Suffix", Threshold = threshold })
 end
 
 -- ~ AlephNum.toScientific() ~
@@ -918,7 +1014,7 @@ end
 -- [>] Input an AlephNum number and some options (optional).
 -- [<] Returns a string. (10000 -> 1e4 for example)
 function AlephNum.toScientific(value: AN, digits: number?, threshold: number?)
-	return AlephNum.toString(value, {Digits = digits, Notation = "Scientific", Threshold = threshold})
+	return AlephNum.toString(value, { Digits = digits, Notation = "Scientific", Threshold = threshold })
 end
 
 -- // Operations \\ --
@@ -928,7 +1024,7 @@ end
 -- [?] Compares two AlephNum (AN) numbers.
 -- [>] Input two (AN) values and a (string) [">=" for example].
 -- [<] Returns a boolean value.
-function AlephNum.cmp(value1: AN, value2: AN, compareString: ("==" | ">=" | "<=" | ">" | "<" | "!=" | "~=")): boolean
+function AlephNum.cmp(value1: AN, value2: AN, compareString: "==" | ">=" | "<=" | ">" | "<" | "!=" | "~="): boolean
 	if not compareString then
 		compareString = "nil"
 	end
@@ -963,7 +1059,7 @@ function AlephNum.cmp(value1: AN, value2: AN, compareString: ("==" | ">=" | "<="
 		return result
 	elseif compareString == "==" then
 		result = ((value1.Layer == value2.Layer) and (value1.Exp == value2.Exp) and (value1.Sign == value2.Sign))
-		
+
 		return result
 	end
 
@@ -987,7 +1083,7 @@ function AlephNum.add(value1: AN, value2: AN): AN
 	if typeof(value1) == "number" and typeof(value2) == "number" then
 		return AlephNum.fromNumber(value1 + value2)
 	end
-	
+
 	local newValue: AN = zero
 
 	value1 = AlephNum.clone(AlephNum.fix(value1))
@@ -998,15 +1094,12 @@ function AlephNum.add(value1: AN, value2: AN): AN
 	elseif value2.Sign == 0 then
 		return toMeta(value1)
 	elseif value1.Layer == 0 and value2.Layer == 0 then
-		return toMeta(tupleNum(
-			0,
-			0,
-			(value1.Exp * value1.Sign) + (value2.Exp * value2.Sign),
-			(value1.Mantissa * value2.Mantissa)
-		))
+		return toMeta(
+			tupleNum(0, 0, (value1.Exp * value1.Sign) + (value2.Exp * value2.Sign), (value1.Mantissa * value2.Mantissa))
+		)
 	end
-	
-	print('add', value1.Layer == value2.Layer)
+
+	print("add", value1.Layer == value2.Layer)
 	value1, value2 = AlephNum.normalizeTwo(value1, value2)
 
 	if value1.Exp ~= value2.Exp then
@@ -1038,7 +1131,7 @@ end
 -- [?] Subtracts two AlephNum (AN) numbers.
 -- [>] Input two (AN) values.
 -- [<] Returns an AlephNum (AN) number.
-function AlephNum.sub(value1: AN, value2: AN): AN	
+function AlephNum.sub(value1: AN, value2: AN): AN
 	value1 = AlephNum.fix(value1)
 	value2 = AlephNum.fix(value2)
 
@@ -1069,7 +1162,7 @@ function AlephNum.mul(value1: AN, value2: AN): AN
 	end
 
 	value1, value2 = AlephNum.normalizeTwo(value1, value2)
-	
+
 	const newSign = value1.Sign * value2.Sign
 
 	if value1.Layer == 0 then
@@ -1093,7 +1186,7 @@ function AlephNum.div(value1: AN, value2: AN): AN
 	if value1.Sign == 0 or value2.Sign == 0 then
 		if value2.Sign == 0 then
 			const scriptName: string, line: string = debugWhere()
-			
+
 			warn(`┏ [AlephNum] Division by zero! Defaulting to zero.`)
 			warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
 
@@ -1104,7 +1197,7 @@ function AlephNum.div(value1: AN, value2: AN): AN
 
 		return toMeta(zero)
 	end
-	
+
 	const newSign = value1.Sign * value2.Sign
 
 	if value1.Layer == 0 and value2.Layer == 0 then
@@ -1112,7 +1205,7 @@ function AlephNum.div(value1: AN, value2: AN): AN
 	elseif value1.Layer ~= value2.Layer then
 		value1, value2 = AlephNum.normalizeTwo(value1, value2)
 	end
-	
+
 	const newExp = value1.Exp - value2.Exp
 	const newMantissa = value1.Mantissa / value2.Mantissa
 
@@ -1132,7 +1225,7 @@ function AlephNum.mod(value1: AN, value2: AN): AN
 
 	if value2.Sign == 0 then
 		const scriptName: string, line: string = debugWhere()
-		
+
 		warn(`┏ [AlephNum] Modulo by zero! Defaulting to zero.`)
 		warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
 		if AlephNum.Config.StrictMode then
@@ -1143,9 +1236,9 @@ function AlephNum.mod(value1: AN, value2: AN): AN
 
 	const div = AlephNum.div(value1, value2):floor()
 	const mul = AlephNum.mul(div, value2)
-	
+
 	const result = AlephNum.sub(value1, mul)
-	
+
 	return result
 end
 
@@ -1192,11 +1285,11 @@ end
 --  * [+] Keep in mind that this isn't precise at higher layers.
 function AlephNum.exp(value: AN): AN
 	value = AlephNum.fix(value)
-	
+
 	if value.Layer == 0 and value.Exp <= 709.782712893383996843822 then
 		return AlephNum.fromNumber(math.exp(value.Sign * value.Exp))
 	end
-	
+
 	if value.Layer == 0 then
 		return AlephNum.fromTuple(1, 1, value.Sign * math.log10(math.e) * value.Exp, value.Mantissa)
 	elseif value.Layer == 1 then
@@ -1213,14 +1306,14 @@ end
 -- [<] Returns an AlephNum (AN) number.
 function AlephNum.pow10(value: AN): AN
 	value = AlephNum.fix(value)
-	
+
 	if value.Layer == 0 then
 		if value:is(0) then
 			return toMeta(zero)
 		end
-		
+
 		if AlephNum.cmp(value, 308, "<") then
-			return AlephNum.fromNumber(value.Sign * (10^value.Exp))
+			return AlephNum.fromNumber(value.Sign * (10 ^ value.Exp))
 		else
 			return AlephNum.fromTuple(value.Sign, 1, value.Exp, value.Mantissa)
 		end
@@ -1247,7 +1340,7 @@ function AlephNum.pow(base: AN, power: AN): AN
 	elseif base:is(10) then
 		return AlephNum.pow10(power)
 	end
-	
+
 	const abslog10 = AlephNum.abs(AlephNum.log10(base))
 	const mul = AlephNum.mul(abslog10, power)
 
@@ -1264,17 +1357,17 @@ end
 function AlephNum.root(value: AN, root: AN): AN
 	value = AlephNum.fix(value)
 	root = AlephNum.fix(root)
-	
+
 	if root:is(0) then
 		const scriptName: string, line: string = debugWhere()
-		
+
 		warn(`┏ [AlephNum] Root is zero! Defaulting to zero.`)
 		warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
 
 		if AlephNum.Config.StrictMode then
 			error(`Strict Mode enabled! Halting the script..`, 4)
 		end
-		
+
 		return toMeta(zero)
 	elseif root:is(1) then
 		return value
@@ -1312,7 +1405,7 @@ function AlephNum.fact(value: AN, precise: boolean?): AN
 	precise = (precise or false)
 
 	const two = AlephNum.fromNumber(2)
-	
+
 	if precise then
 		const one = AlephNum.fromNumber(1)
 		const three = AlephNum.fromNumber(3)
@@ -1320,11 +1413,15 @@ function AlephNum.fact(value: AN, precise: boolean?): AN
 		const six = AlephNum.fromNumber(6)
 		const eight = AlephNum.fromNumber(8)
 		const thirty = AlephNum.fromNumber(30)
-		
-		return (AlephNum.sqrt(AlephNum.pi) * ((value / AlephNum.e)^value) * ((eight*value^three + four*value^two + value + one/thirty)^(one/six)))
+
+		return (
+			AlephNum.sqrt(AlephNum.pi)
+			* ((value / AlephNum.e) ^ value)
+			* ((eight * value ^ three + four * value ^ two + value + one / thirty) ^ (one / six))
+		)
 	end
-		
-	const sqrt = AlephNum.sqrt(AlephNum.mul(two, AlephNum.pi) * value) 
+
+	const sqrt = AlephNum.sqrt(AlephNum.mul(two, AlephNum.pi) * value)
 	const pow = AlephNum.pow(AlephNum.div(value, AlephNum.e), value)
 
 	return AlephNum.mul(sqrt, pow)
@@ -1363,10 +1460,10 @@ end
 -- [<] Returns an AlephNum (AN) number.
 function AlephNum.abs(value: AN)
 	value = AlephNum.fix(value)
-	
+
 	const clone = AlephNum.clone(value)
 	clone.Sign = 1
-	
+
 	if clone:is(0) then
 		clone.Sign = 0
 	end
@@ -1383,13 +1480,13 @@ function AlephNum.clamp(value: AN, lowerLimit: AN, upperLimit: AN): AN
 	value = AlephNum.fix(value)
 	lowerLimit = AlephNum.fix(lowerLimit)
 	upperLimit = AlephNum.fix(upperLimit)
-	
+
 	if value < lowerLimit then
-		return lowerLimit 
+		return lowerLimit
 	elseif value > upperLimit then
 		return upperLimit
 	end
-	
+
 	return value
 end
 
@@ -1474,42 +1571,42 @@ end
 
 function AN:sub(value: AN): AN
 	const result = AlephNum.sub(self, AlephNum.clone(value))
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:mul(value: AN): AN
 	const result = AlephNum.mul(self, AlephNum.clone(value))
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:div(value: AN): AN
 	const result = AlephNum.div(self, AlephNum.clone(value))
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:pow(power: AN): AN
 	const result = AlephNum.pow(self, AlephNum.clone(power))
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:fact(precise: boolean?): AN
 	const result = AlephNum.fact(self, precise)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:mod(power: AN): AN
 	const result = AlephNum.mod(self, AlephNum.clone(power))
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
@@ -1523,77 +1620,77 @@ end
 
 function AN:log10(): AN
 	const result = AlephNum.log10(self)
-	self:update(result)	
-	
+	self:update(result)
+
 	return self
 end
 
 function AN:root(root: AN): AN
 	const result = AlephNum.root(self, AlephNum.clone(root))
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:sqrt(): AN
 	const result = AlephNum.sqrt(self)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:cbrt(): AN
 	const result = AlephNum.cbrt(self)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:neg(): AN
 	const result = AlephNum.neg(self)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:unm(): AN
 	const result = AlephNum.unm(self)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:abs(): AN
 	const result = AlephNum.abs(self)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:floor(): AN
 	const result = AlephNum.floor(self)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:ceil(): AN
 	const result = AlephNum.ceil(self)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:clamp(lowerLimit: AN, upperLimit: AN): AN
 	const result = AlephNum.clamp(self, AlephNum.clone(lowerLimit), AlephNum.clone(upperLimit))
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
 
 function AN:round(): AN
 	const result = AlephNum.round(self)
-	self:update(result)	
+	self:update(result)
 
 	return self
 end
@@ -1602,7 +1699,9 @@ function AN:toNumber(): number
 	return AlephNum.toNumber(self)
 end
 
-function AN:toString(options: {Notation: ("None" | "Scientific" | "Suffix"), Threshold: number, Digits: number}?): string
+function AN:toString(
+	options: { Notation: "None" | "Scientific" | "Suffix", Threshold: number, Digits: number }?
+): string
 	return AlephNum.toString(self, options)
 end
 
@@ -1656,7 +1755,6 @@ function AlephNum.__lt(self: AN, other: AN): boolean
 	return AlephNum.cmp(self, other, "<")
 end
 
-
 function AlephNum.__le(self: AN, other: AN): boolean
 	return AlephNum.cmp(self, other, "<=")
 end
@@ -1684,7 +1782,7 @@ return AlephNum :: {
 
 	fromNumber: typeof(AlephNum.fromNumber),
 	fromString: typeof(AlephNum.fromString),
-	
+
 	toNumber: typeof(AlephNum.toNumber),
 	toString: typeof(AlephNum.toString),
 	toSuffix: typeof(AlephNum.toSuffix),
@@ -1696,19 +1794,19 @@ return AlephNum :: {
 	div: typeof(AlephNum.div),
 	pow: typeof(AlephNum.pow),
 	mod: typeof(AlephNum.mod),
-	
+
 	fact: typeof(AlephNum.fact),
-	
+
 	root: typeof(AlephNum.root),
 	sqrt: typeof(AlephNum.sqrt),
 	cbrt: typeof(AlephNum.cbrt),
-	
+
 	clamp: typeof(AlephNum.clamp),
-	
+
 	floor: typeof(AlephNum.floor),
 	round: typeof(AlephNum.round),
 	ceil: typeof(AlephNum.ceil),
-	
+
 	log10: typeof(AlephNum.log10),
 	log: typeof(AlephNum.log),
 
@@ -1722,7 +1820,7 @@ return AlephNum :: {
 
 	setConfig: typeof(AlephNum.setConfig),
 	Config: typeof(AlephNum.Config),
-	
+
 	pi: typeof(AlephNum.pi),
-	e: typeof(AlephNum.e)
+	e: typeof(AlephNum.e),
 }
