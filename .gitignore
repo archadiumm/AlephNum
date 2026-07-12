@@ -6,5 +6,9 @@
 /*.rbxl.lock
 
 sourcemap.json
+wally.lock
 
 default.project.json
+
+src/client
+src/server
