@@ -1,1 +1,4 @@
-print("Hello world, from server!")
+--!nocheck
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AlephNum = require(ReplicatedStorage.Shared.AlephNum)

@@ -240,12 +240,10 @@ const function correct(value: AN): AN
 
 	-- ~ Layer to Number/AN ~ --
 	if isAN(value.Layer) and toNumber(value.Layer) < inf then
-		print("layerback")
 		value.Layer = toNumber(value.Layer)
 	end
 
 	if not isAN(value.Layer) and (not isNIL(value.Layer) and value.Layer >= inf) then
-		print("layeragain", value.Layer)
 		value.Layer = AlephNum.fromNumber(value.Layer)
 	end
 
@@ -609,7 +607,6 @@ function AlephNum.normalize(value: AN, layer: number | AN): AN
 		repeat
 			if value.Exp <= 0 or getDepth(value.Layer) < getDepth(layer) then
 				if getDepth(value.Layer) < getDepth(layer) then
-					print("briueh")
 					value.Exp = 0
 					value.Mantissa = 0
 					value.Sign = 0
@@ -621,7 +618,6 @@ function AlephNum.normalize(value: AN, layer: number | AN): AN
 			if typeof(value.Layer) == "number" then
 				stop = (value.Layer >= layer)
 			else
-				print(isAN(value.Layer), isAN(layer), typeof(value.Layer) == "number")
 				task.wait()
 			end
 
@@ -629,7 +625,6 @@ function AlephNum.normalize(value: AN, layer: number | AN): AN
 		until stop
 
 		value.Layer = layer
-		print(value.Layer)
 	end
 
 	return value
@@ -643,8 +638,6 @@ end
 function AlephNum.normalizeTwo(value1: AN, value2: AN): (AN, AN)
 	if value1.Layer ~= value2.Layer then
 		local oneGreater: boolean
-
-		print("bef", oneGreater)
 
 		if typeof(value1.Layer) == "number" and typeof(value2.Layer) == "number" then
 			oneGreater = value1.Layer > value2.Layer
@@ -678,15 +671,11 @@ function AlephNum.normalizeTwo(value1: AN, value2: AN): (AN, AN)
 			until not isNIL(oneGreater)
 		end
 
-		print(oneGreater)
-
 		if oneGreater then
 			value2 = AlephNum.normalize(value2, value1.Layer)
 		else
 			value1 = AlephNum.normalize(value1, value2.Layer)
 		end
-	else
-		print("what")
 	end
 
 	return value1, value2
@@ -1099,7 +1088,6 @@ function AlephNum.add(value1: AN, value2: AN): AN
 		)
 	end
 
-	print("add", value1.Layer == value2.Layer)
 	value1, value2 = AlephNum.normalizeTwo(value1, value2)
 
 	if value1.Exp ~= value2.Exp then
