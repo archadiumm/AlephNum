@@ -11,6 +11,7 @@ As of right now, AlephNum currently supports many math functions, high precision
 # Installation
 -- installation coming soon lol
 
+## Support
 If you encounter any bugs, please send them to my [discord](https://discord.com/users/584603465431515156), message me on [GitHub](https://github.com/archadiumm), whatever you do I will try to fix it asap.
 
 ## Quick Start
