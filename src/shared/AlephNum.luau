@@ -181,6 +181,22 @@ const function reverse<T>(tbl: { T }): { T }
 	return result
 end
 
+const function toLength(number: number, length: length)
+	number = math.round(number * 100)
+
+	local text: string = tostring(number)
+
+	if string.len(text) >= length then
+		return text:sub(0, length)
+	else
+		repeat
+			text = `0{text}`
+		until string.len(text) >= length
+
+		return text:sub(0, length)
+	end
+end
+
 const function isNIL(value: any): boolean
 	return (value == nil)
 end
@@ -711,6 +727,49 @@ function AlephNum.fromNumber(value: number): AN
 	end
 
 	return toMeta(newValue)
+end
+
+-- ~ AlephNum.toLeaderboard() ~
+-- ------------------
+-- [?] Compresses AN numbers into numbers that can be used in OrderedDataStores.
+-- [>] Input an AlephNum (AN) number.
+-- [<] Returns a number.
+--  *  [+] For Depth 1+ numbers, this wont work.
+function AlephNum.toLeaderboard(value: AN): number
+	value = AlephNum.fix(value)
+
+	if isAN(value.Layer) then
+		return -1
+	elseif value.Sign == 0 then
+		return 0
+	end
+
+	local string: string = tostring(value.Sign)
+	string ..= toLength(value.Layer, 3)
+	string ..= toLength(value.Exp, 5)
+	string ..= toLength(value.Mantissa, 9)
+
+	return tonumber(string)
+end
+
+-- ~ AlephNum.fromLeaderboard() ~
+-- ------------------
+-- [?] Decompresses values from OrderedDataStores into AlephNum numbers.
+-- [>] Input a number.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.fromLeaderboard(value: number): AN
+	const text: string = tostring(value)
+
+	if #text ~= 18 then
+		return tonumber(value)
+	end
+
+	const sign: number = tonumber(text:sub(1, 1))
+	const layer: number = tonumber(text:sub(2, 4)) / 100
+	const exp: number = tonumber(text:sub(5, 9)) / 100
+	const mantissa: number = tonumber(text:sub(10, 18)) / 100
+
+	return AlephNum.fromTuple(sign, layer, exp, mantissa)
 end
 
 -- ~ AlephNum.setConfig() ~ -
@@ -1729,6 +1788,10 @@ function AN:toScientific(digits: number?): string
 	return AlephNum.toScientific(self, digits)
 end
 
+function AN:toLeaderboard(): number
+	return AlephNum.toLeaderboard(self)
+end
+
 function AN:is(value: any): boolean
 	return AlephNum.cmp(self, value, "==")
 end
@@ -1799,11 +1862,13 @@ return AlephNum :: {
 	fromNumber: typeof(AlephNum.fromNumber),
 	fromString: typeof(AlephNum.fromString),
 	fromTuple: typeof(AlephNum.fromTuple),
+	fromLeaderboard: typeof(AlephNum.fromLeaderboard),
 
 	toNumber: typeof(AlephNum.toNumber),
 	toString: typeof(AlephNum.toString),
 	toSuffix: typeof(AlephNum.toSuffix),
 	toScientific: typeof(AlephNum.toScientific),
+	toLeaderboard: typeof(AlephNum.toLeaderboard),
 
 	add: typeof(AlephNum.add),
 	sub: typeof(AlephNum.sub),
