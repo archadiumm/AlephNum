@@ -763,15 +763,36 @@ end
 function AlephNum.toNumber(value: AN): number
 	value = AlephNum.fix(value)
 
-	if value.Layer > 1 then
+	if isAN(value.Layer) then
 		return math.huge
 	end
 
+	local newNumber: number
+
 	if value.Layer == 0 then
-		return value.Sign * value.Mantissa * value.Exp
+		newNumber = value.Exp * value.Sign
 	else
-		return value.Sign * value.Mantissa * (10 ^ value.Exp)
+		newNumber = value.Sign * value.Mantissa
+
+		local exp: number
+
+		for i = 1, value.Layer do
+			if i >= value.Layer then
+				exp = 10 ^ value.Exp
+				break
+			end
+
+			exp = 10 ^ exp
+
+			if math.isinf(exp) then
+				return math.huge
+			end
+		end
+
+		return newNumber * exp
 	end
+
+	return newNumber
 end
 
 -- ~ AlephNum.fromString() ~
