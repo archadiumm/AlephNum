@@ -906,7 +906,7 @@ function AlephNum.toString(
 
 				local newExp: AN = AlephNum.fromNumber(value.Exp)
 
-				for index: number = 1, value.Layer - 1 do
+				for _i: number = 1, value.Layer - 1 do
 					newExp = AlephNum.pow10(newExp)
 				end
 
@@ -1508,7 +1508,7 @@ function AlephNum.floor(value: AN)
 	value = AlephNum.fix(value)
 
 	if value.Layer >= 1 then
-		return value
+		return AlephNum.fromTuple(value.Sign, value.Layer, value.Exp, math.floor(value.Mantissa))
 	else
 		const clone = AlephNum.clone(value)
 		clone.Exp = math.floor(clone.Exp)
@@ -1526,7 +1526,7 @@ function AlephNum.ceil(value: AN)
 	value = AlephNum.fix(value)
 
 	if value.Layer >= 1 then
-		return value
+		return AlephNum.fromTuple(value.Sign, value.Layer, value.Exp, math.ceil(value.Mantissa))
 	else
 		const clone = AlephNum.clone(value)
 		clone.Exp = math.ceil(clone.Exp)
@@ -1544,7 +1544,7 @@ function AlephNum.round(value: AN)
 	value = AlephNum.fix(value)
 
 	if value.Layer >= 1 then
-		return value
+		return AlephNum.fromTuple(value.Sign, value.Layer, value.Exp, math.round(value.Mantissa))
 	else
 		const clone = AlephNum.clone(value)
 		clone.Exp = math.round(clone.Exp)
@@ -1601,6 +1601,13 @@ end
 
 function AN:pow(power: AN): AN
 	const result = AlephNum.pow(self, AlephNum.clone(power))
+	self:update(result)
+
+	return self
+end
+
+function AN:pow10(): AN
+	const result = AlephNum.pow10(self)
 	self:update(result)
 
 	return self
@@ -1791,6 +1798,7 @@ return AlephNum :: {
 
 	fromNumber: typeof(AlephNum.fromNumber),
 	fromString: typeof(AlephNum.fromString),
+	fromTuple: typeof(AlephNum.fromTuple),
 
 	toNumber: typeof(AlephNum.toNumber),
 	toString: typeof(AlephNum.toString),
@@ -1802,6 +1810,7 @@ return AlephNum :: {
 	mul: typeof(AlephNum.mul),
 	div: typeof(AlephNum.div),
 	pow: typeof(AlephNum.pow),
+	pow10: typeof(AlephNum.pow10),
 	mod: typeof(AlephNum.mod),
 
 	fact: typeof(AlephNum.fact),
@@ -1818,6 +1827,7 @@ return AlephNum :: {
 
 	log10: typeof(AlephNum.log10),
 	log: typeof(AlephNum.log),
+	ln: typeof(AlephNum.ln),
 
 	neg: typeof(AlephNum.neg),
 	unm: typeof(AlephNum.unm),
