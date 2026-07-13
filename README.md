@@ -46,9 +46,9 @@ AlephNum's number format was heavily inspired by EternityNum's. Each AN (AlephNu
 ## Number Values
 * **Layer _N_**: Value = S * M * (a tower of N tens with E at the top)
 
-* **Layer 0**:    Value = S * M * E
-* **Layer 1**:    Value = S * M * 10^E
-* **Layer 2**:    Value = S * M * 10^(10^E)
+* **Layer 0**:    Value = `S * M * E`
+* **Layer 1**:    Value = `S * M * 10^E`
+* **Layer 2**:    Value = `S * M * 10^(10^E)`
 * _it keeps going.._
 
 ## AlephNum's Limit
