@@ -52,14 +52,14 @@ AlephNum's number format was heavily inspired by EternityNum's. Each AN (AlephNu
 * _it keeps going.._
 
 ## AlephNum's Limit
-The reason why **EternityNum** and other libraries max out at about <code>10↑↑(2^53 - 1)</code> is because `(2^53 - 1)` is the highest number roblox can handle.
+The reason why **EternityNum** and other libraries max out at about <code>10↑↑(1e308)</code> is because `1e308` is the highest number roblox can handle.
 
 AlephNum solves this problem by making the layer an AN every time it gets to inf. This keeps going until the set depth limit, which in AlephNum's case is **16** by default.
 
 Numbers can go higher than this if you change the depth limit, but there's no use for numbers past `10 ↑↑↑ 3` even, let alone `10 ↑↑↑ 16`. Along with that, numbers kind of get a bit buggy at that point, and leaderboard encoding becomes impossible.
 
 ## Why?
-Look, I will be honest. AlephNum being able to go past other previous limits like `1e308`, <code>10 ↑↑ (2^53 - 1)</code>, and all the way up to `10 ↑↑↑ 16` was not my main priority at all. It wasn't even the thing I worked hardest on.
+Look, I will be honest. AlephNum being able to go past other previous limits like `1e308`, <code>10 ↑↑ (1e308)</code>, and all the way up to `10 ↑↑↑ 16` was not my main priority at all. It wasn't even the thing I worked hardest on.
 
 The thing I worked hardest on was making the user experience as enjoyable as possible. I've used **EternityNum**, **Quicknum**, **QubitNum**, **InfiniteMath**, etc. and I have just had problems with them. Some were too slow, too clunky, had messy source code, terrible number limits, all of the above sometimes. I wanted to make this for you guys, as my first genuine project.
 
