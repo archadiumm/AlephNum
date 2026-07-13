@@ -1,12 +1,11 @@
 --!nocheck
 --!optimize 2
 
---hi
-
 --[[
 	Creator: @archadiumm
 	Name: AlephNum
-	Description: A library to handle numbers PAST 10↑↑2^1024 (https://googology.fandom.com/wiki/Arrow_notation)
+	Description: Calculate numbers up to 10 ↑↑↑ 16 (https://googology.fandom.com/wiki/Arrow_notation)
+	GitHub: https://github.com/archadiumm/AlephNum/
 	
 	Inspired By:
 	 * @FoundForces - EternityNum2 Developer
@@ -27,9 +26,12 @@ AlephNum.Config = {
 
 	["Notation"] = "Scientific",
 	["SciNotation"] = "None",
-	--["SciParenthesis"] = true,
+
 	["Threshold"] = 1e3,
 	["Digits"] = 2,
+
+	["DepthLimit"] = 16,
+	["DepthWarnings"] = true,
 }
 
 const zero: AN = {
@@ -243,6 +245,30 @@ const function getDepth(value: AN?): number
 	return depth
 end
 
+const function debugWhere(): (string, string)
+	local level = 0
+
+	local scriptName: string = debug.info(level, "s")
+	local line: string = debug.info(level, "l")
+
+	repeat
+		scriptName = debug.info(level, "s")
+		line = debug.info(level, "l")
+
+		level += 1
+
+		if level > 25 then
+			scriptName = "[NIL]"
+			line = "[NIL]"
+
+			break
+		end
+
+	until level > 0 and not scriptLocation:find(scriptName) and scriptName ~= "[C]" and line > 0
+
+	return scriptName, line
+end
+
 const function correct(value: AN): AN
 	if not value then
 		value = zero
@@ -261,6 +287,14 @@ const function correct(value: AN): AN
 
 	if not isAN(value.Layer) and (not isNIL(value.Layer) and value.Layer >= inf) then
 		value.Layer = AlephNum.fromNumber(value.Layer)
+
+		if AlephNum.Config.DepthWarnings then
+			const scriptName: string, line: string = debugWhere()
+
+			warn(`┏ [AlephNum] A number has exceeded the Layer Limit!`)
+			warn(`┃  ╸ Numbers past Layer 1e+308 are buggy, so be cautious!`)
+			warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+		end
 	end
 
 	-- ~ Layer Down ~ --
@@ -454,30 +488,6 @@ const function tierSuffix(tier: number, smallTierSuffix: boolean, exp: number): 
 	end
 end
 
-const function debugWhere(): (string, string)
-	local level = 0
-
-	local scriptName: string = debug.info(level, "s")
-	local line: string = debug.info(level, "l")
-
-	repeat
-		scriptName = debug.info(level, "s")
-		line = debug.info(level, "l")
-
-		level += 1
-
-		if level > 25 then
-			scriptName = "[NIL]"
-			line = "[NIL]"
-
-			break
-		end
-
-	until level > 0 and not scriptLocation:find(scriptName) and scriptName ~= "[C]" and line > 0
-
-	return scriptName, line
-end
-
 const function layerUp(value: AN): AN
 	if value.Layer == 0 then
 		return {
@@ -532,6 +542,25 @@ function AlephNum.new(...): AN
 	const metaResult: AN = toMeta(result)
 
 	return metaResult
+end
+
+-- ~ AlephNum.huge() ~
+-- ------------------
+-- [?] Returns the biggest possible AN number.
+-- [<] Returns an AlephNum (AN) number.
+--  *  [+] The value depends on the DepthLimit in config.
+function AlephNum.huge(): AN
+	const start: AN = AlephNum.fromNumber(math.huge)
+	local current: AN = start
+
+	for _ = 1, AlephNum.Config.DepthLimit do
+		const nextLayer = AlephNum.fromNumber(math.huge)
+
+		current.Layer = nextLayer
+		current = nextLayer
+	end
+
+	return start
 end
 
 -- ~ AlephNum.fromTuple() ~
