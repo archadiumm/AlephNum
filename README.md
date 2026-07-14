@@ -9,7 +9,12 @@ AlephNum is a luau number library inspired from other libraries like **EternityN
 As of right now, AlephNum currently supports many math functions, high precision, customizable config, leaderboard encoding/decoding, metamethods (and methods), and more.
 
 # Installation
--- installation coming soon lol
+To download the library in the form of a [**wally dependency**](https://wally.run/package/archadiumm/alephnum), please copy and paste the text below into the dependencies list.
+```md
+AlephNum = "archadiumm/alephnum@1.0.1"
+```
+
+For other installation methods, please go to the [latest release](https://github.com/archadiumm/AlephNum/releases/latest).
 
 ## Support
 If you encounter any bugs, please send them to my [discord](https://discord.com/users/584603465431515156), message me on [GitHub](https://github.com/archadiumm), whatever you do I will try to fix it asap.
@@ -52,6 +57,9 @@ AlephNum's number format was heavily inspired by EternityNum's. Each AN (AlephNu
 * _it keeps going.._
 
 ## AlephNum's Limit
+> [!CAUTION]
+> Certain numbers above <code>10 ↑↑ (1e308)</code> have been shown to have overflow bugs. Be patient while I try to fix this.
+
 The reason why **EternityNum** and other libraries max out at about <code>10↑↑(1e308)</code> is because `1e308` is the highest number roblox can handle.
 
 AlephNum solves this problem by making the layer an AN every time it gets to inf. This keeps going until the set depth limit, which in AlephNum's case is **16** by default.
