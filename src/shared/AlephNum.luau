@@ -1905,6 +1905,7 @@ return AlephNum :: {
 	div: typeof(AlephNum.div),
 	pow: typeof(AlephNum.pow),
 	pow10: typeof(AlephNum.pow10),
+	exp: typeof(AlephNum.exp),
 	mod: typeof(AlephNum.mod),
 
 	fact: typeof(AlephNum.fact),
