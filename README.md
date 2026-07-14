@@ -36,8 +36,14 @@ const quicker = new < fromNumber -- Works if both values are an AN (AlephNum). R
 new:pow(100) -- Sets new to new^100. This is mutable (changes the original variable's value).
 const new2 = new * 100 -- Multiplies new by 100. This is immutable. new remains unchanged.
 const addition = AlephNum.add(1, 2) -- Does 1 + 2. Self-explanatory.
+
+-- ~ Conversions ~ --
+print(AlephNum.fromNumber(1e8):toSuffix()) -- Prints "100M"
+print(AlephNum.toScientific(100000000000000000000)) -- Prints "1e20"
 ```
-AlephNum handles many math functions, and in the next update will be able to handle slogs, tetration and (maybe) pentation.
+> AlephNum handles many math functions, and in the next update will be able to handle slogs, tetration and (maybe) pentation.
+
+By the way, there is a config (`AlephNum.setConfig`/`AlephNum.Config`) that you can use to set default notation, threshold, etc.
 # Number Format
 AlephNum's number format was heavily inspired by EternityNum's. Each AN (AlephNum number) is a table of 4 values.
 ```luau
