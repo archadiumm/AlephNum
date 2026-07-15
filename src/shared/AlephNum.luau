@@ -1055,7 +1055,7 @@ function AlephNum.toString(
 		end
 
 		const tier = math.floor(baseTier)
-		const extra = div3 - math.floor(div3)
+		const extra = div3 - tier
 
 		local mantissa: number
 
@@ -1075,14 +1075,12 @@ function AlephNum.toString(
 			until mantissa < 10
 		end
 
-		if extra > 0 then
-			if extra >= 0.5 then
-				mantissa *= 10
-			end
+		if extra >= 0.3 then
+			mantissa *= 10
+		end
 
-			if extra >= 0.8 then
-				mantissa *= 10
-			end
+		if extra >= 0.6 then
+			mantissa *= 10
 		end
 
 		return `{mantissa}{tierSuffix(tier, false, value.Exp)}`
