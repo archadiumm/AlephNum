@@ -1083,6 +1083,7 @@ function AlephNum.toString(
 			mantissa *= 10
 		end
 
+		mantissa = math.round(baseMantissa * digitPower) / digitPower
 		return `{mantissa}{tierSuffix(tier, false, value.Exp)}`
 	else
 		const scriptName: string, line: string = debugWhere()
