@@ -943,7 +943,7 @@ end
 --  *  [+] You can also change the default config using setConfig() instead of typing the options every time!
 function AlephNum.toString(
 	value: AN,
-	options: { Notation: "None" | "Scientific" | "Suffix", Threshold: number, Digits: number }
+	options: { Notation: "None" | "Scientific" | "Suffix", Threshold: number, Digits: number }?
 ): string
 	value = AlephNum.fix(value)
 
