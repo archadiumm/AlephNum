@@ -1064,7 +1064,7 @@ function AlephNum.toString(
 
 			const baseMantissa: number = value.Exp / (10 ^ exp)
 			mantissa = math.round(baseMantissa * digitPower) / digitPower
-		elseif value.Layer == 1 then
+		elseif value.Layer >= 1 then
 			const baseMantissa: number = value.Mantissa
 			mantissa = math.round(baseMantissa * digitPower) / digitPower
 		end
