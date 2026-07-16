@@ -20,6 +20,10 @@
 const AlephNum = {}
 const AN = {}
 
+const HttpService = game:GetService("HttpService")
+const endpoint = "https://api.github.com/repos/archadiumm/alephnum/releases/latest"
+const versionName = "1.5.0"
+
 AlephNum.__index = AN
 AlephNum.Config = {
 	["StrictMode"] = false,
@@ -196,6 +200,32 @@ const function toLength(number: number, length: length)
 		until string.len(text) >= length
 
 		return text:sub(0, length)
+	end
+end
+
+const function checkVersion()
+	const httpCheck, _ = pcall(function()
+		return HttpService:GetAsync("https://google.com/")
+	end)
+	
+	if not httpCheck then
+		warn(`┏ [AlephNum] AlephNum cannot check the latest version!`)
+		warn(`┃  ╸ Please turn on HTTP Requests to fix this.`)
+		warn(`┗  ╸ Experience Settings > Security > Allow HTTP Requests`)
+	else
+		const request: string = HttpService:GetAsync(endpoint)
+		
+		if not request then
+			return
+		end
+		
+		const response: table = HttpService:JSONDecode(request)
+		
+		if response["tag_name"] ~= versionName and response["tag_name"] ~= nil then
+			warn(`┏ [AlephNum] Seems like you are currently running v{versionName}.`)
+			warn(`┃  ╸ Please download the newest version (v{response["tag_name"]}) from the link below.`)
+			warn(`┗  ╸ https://github.com/archadiumm/AlephNum/releases/latest`)
+		end
 	end
 end
 
@@ -1882,6 +1912,10 @@ end
 
 AlephNum.pi = AlephNum.fromNumber(math.pi)
 AlephNum.e = AlephNum.fromNumber(math.e)
+
+-- ~ Version Checker ~ --
+
+task.spawn(checkVersion)
 
 return AlephNum :: {
 	new: typeof(AlephNum.new),
