@@ -402,6 +402,17 @@ const function correct(value: AN): AN
 		value.Exp = math.floor(value.Exp)
 	end
 
+	if value.Mantissa < 1 and value.Layer == 1 then
+		if value.Mantissa == 0 then
+			value.Mantissa = 1
+		else
+			repeat
+				value.Mantissa *= 10
+				value.Exp -= 1
+			until value.Mantissa >= 1
+		end
+	end
+
 	-- ~ Layer 2+ ~ --
 	-- layer 2+ cleanups later
 
@@ -1002,7 +1013,7 @@ function AlephNum.toString(
 			local exp: number = math.floor(math.log10(value.Exp))
 
 			const baseMantissa: number = value.Exp / (10 ^ exp)
-			const formattedMantissa: number = math.round(baseMantissa * digitPower) / digitPower
+			const formattedMantissa: number = (math.round(baseMantissa * digitPower) / digitPower) * value.Sign
 
 			if AlephNum.Config.SciNotation == "Suffix" and exp >= threshold then
 				return `{formattedMantissa}e{AlephNum.toSuffix(exp, digits, threshold)}`
@@ -1013,7 +1024,7 @@ function AlephNum.toString(
 			local exp: number = math.floor(value.Exp)
 
 			const baseMantissa: number = value.Mantissa
-			const formattedMantissa: number = math.round(baseMantissa * digitPower) / digitPower
+			const formattedMantissa: number = (math.round(baseMantissa * digitPower) / digitPower) * value.Sign
 
 			if AlephNum.Config.SciNotation == "Suffix" and exp >= threshold then
 				return `{formattedMantissa}e{AlephNum.toSuffix(exp, digits, threshold)}`
@@ -1023,7 +1034,7 @@ function AlephNum.toString(
 		else
 			if AlephNum.Config.SciNotation == "Suffix" then
 				const mantissa = value.Mantissa
-				const formattedMantissa = math.round(mantissa * digitPower) / digitPower
+				const formattedMantissa = (math.round(mantissa * digitPower) / digitPower) * value.Sign
 
 				local newExp: AN = AlephNum.fromNumber(value.Exp)
 
@@ -1066,6 +1077,10 @@ function AlephNum.toString(
 				if not isNIL(numbers[index + 1]) then
 					result ..= "e"
 				end
+			end
+
+			if value.Sign == -1 then
+				result = ("-" .. result)
 			end
 
 			return result
@@ -1116,7 +1131,7 @@ function AlephNum.toString(
 			mantissa *= 10
 		end
 
-		mantissa = math.round(mantissa * digitPower) / digitPower
+		mantissa = (math.round(mantissa * digitPower) / digitPower) * value.Sign
 		return `{mantissa}{tierSuffix(tier, false, value.Exp)}`
 	else
 		const scriptName: string, line: string = debugWhere()
