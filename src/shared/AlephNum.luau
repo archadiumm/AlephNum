@@ -13,7 +13,7 @@
 	 
 	 * Everything Upgrade Tree (and other incrementals)
 ]]
---
+--s
 
 -- // Constants \\ --
 
@@ -22,7 +22,7 @@ const AN = {}
 
 const HttpService = game:GetService("HttpService")
 const endpoint = "https://api.github.com/repos/archadiumm/alephnum/releases/latest"
-const versionName = "1.5.0"
+const versionName = "2.0.0"
 
 AlephNum.__index = AN
 AlephNum.Config = {
@@ -32,10 +32,9 @@ AlephNum.Config = {
 	["SciNotation"] = "None",
 
 	["Threshold"] = 1e3,
-	["Digits"] = 2,
+	["SciThreshold"] = 10,
 
-	["DepthLimit"] = 16,
-	["DepthWarnings"] = true,
+	["Digits"] = 2,
 }
 
 const zero: AN = {
@@ -46,7 +45,7 @@ const zero: AN = {
 }
 
 const expLimit = 1e10
-const inf = 1e308
+const inf = (2 - 2^-52) * 2^1023
 
 const compareStrings = { "==", ">=", "<=", ">", "<", "!=", "~=" }
 
@@ -607,9 +606,8 @@ end
 -- ------------------
 -- [?] Returns the biggest possible AN number.
 -- [<] Returns an AlephNum (AN) number.
---  *  [+] The value depends on the DepthLimit in config.
 function AlephNum.huge(): AN
-	return AlephNum.fromNumber(math.huge)
+	return AlephNum.fromNumber(inf)
 end
 
 -- ~ AlephNum.fromTuple() ~
@@ -858,7 +856,7 @@ end
 -- [?] Changes settings in the AlephNum config.
 -- [>] Input a configName (string) and a (boolean) value.
 function AlephNum.setConfig(
-	configName: "StrictMode" | "Notation" | "Digits" | "Threshold" | "SciNotation",
+	configName: "StrictMode" | "Notation" | "Digits" | "Threshold" | "SciNotation" | "SciThreshold",
 	value: any
 ): ()
 	const setting: any = AlephNum.Config[configName]
@@ -995,7 +993,7 @@ end
 --  *  [+] You can also change the default config using setConfig() instead of typing the options every time!
 function AlephNum.toString(
 	value: AN,
-	options: { Notation: "None" | "Scientific" | "Suffix", Threshold: number, Digits: number }?
+	options: { Notation: "None" | "Scientific" | "Suffix", Threshold: number, SciThreshold: number, Digits: number }?
 ): string
 	value = AlephNum.fix(value)
 
@@ -1003,10 +1001,12 @@ function AlephNum.toString(
 	options.Notation = options.Notation or AlephNum.Config.Notation
 	options.Digits = math.abs(options.Digits or AlephNum.Config.Digits)
 	options.Threshold = math.abs(options.Threshold or AlephNum.Config.Threshold)
+	options.SciThreshold = math.abs(options.SciThreshold or AlephNum.Config.SciThreshold)
 
 	const notation: string = options.Notation
 	const digits: number = options.Digits
-	const threshold: number = math.clamp(options.Threshold, 1e3, math.huge)
+	const threshold: number = math.max(options.Threshold, 1e3)
+	const sciThreshold: number = math.max(options.SciThreshold, 10)
 
 	const digitPower: number = math.pow(10, digits)
 
@@ -1047,7 +1047,7 @@ function AlephNum.toString(
 			else
 				return `{formattedMantissa}e{exp}`
 			end
-		else
+		elseif value.Layer <= sciThreshold then
 			if AlephNum.Config.SciNotation == "Suffix" then
 				const mantissa = value.Mantissa
 				const formattedMantissa = (math.round(mantissa * digitPower) / digitPower) * value.Sign
@@ -1100,6 +1100,15 @@ function AlephNum.toString(
 			end
 
 			return result
+		else
+			const mantissa = value.Mantissa
+			const formattedMantissa = (math.round(mantissa * digitPower) / digitPower) * value.Sign
+
+			if formattedMantissa == 1 then
+				return `10 ↑↑ {AlephNum.toScientific(value.Layer)}`
+			else
+				return `{formattedMantissa} x 10 ↑↑ {AlephNum.toScientific(value.Layer)}`
+			end
 		end
 	elseif notation == "Suffix" then -- unfinished
 		local baseTier: number
@@ -1544,7 +1553,7 @@ end
 -- [?] Tetrates an (AN) to the height of another (AN).
 -- [>] Input two (AN) values.
 -- [<] Returns an AlephNum (AN) number.
---  * [+] Tetration by decimals can be a bit off. Along with heights < 1.
+--  * [+] Tetration by decimals, negatives, and numbers above 1e10 are approximated.
 function AlephNum.tetrate(base: AN, height: AN): AN
 	base = AlephNum.fix(base)
 	height = AlephNum.fix(height)
