@@ -1,6 +1,6 @@
 <div align="center">
 	<h1><img src="https://github.com/archadiumm/AlephNum/blob/master/assets/alephnum-title.png" width="380" style="display: block; margin: 0 auto; padding: 0;"></h1>
-	<p><i>Calculate numbers up to </i><code>10 ↑↑ 308</code><a href="https://github.com/archadiumm/AlephNum#alephnums-limit">*</a></p>
+	<p><i>Calculate numbers up to </i><code>10 ↑↑ 1e308</code><a href="https://github.com/archadiumm/AlephNum#alephnums-limit">*</a></p>
 </div>
 
 > [!CAUTION]
