@@ -586,17 +586,7 @@ end
 -- [<] Returns an AlephNum (AN) number.
 --  *  [+] The value depends on the DepthLimit in config.
 function AlephNum.huge(): AN
-	const start: AN = AlephNum.fromNumber(math.huge)
-	local current: AN = start
-
-	for _ = 1, AlephNum.Config.DepthLimit do
-		const nextLayer = AlephNum.fromNumber(math.huge)
-
-		current.Layer = nextLayer
-		current = nextLayer
-	end
-
-	return start
+	return AlephNum.fromNumber(math.huge)
 end
 
 -- ~ AlephNum.fromTuple() ~
@@ -801,12 +791,15 @@ end
 -- [<] Returns a number.
 --  *  [+] For Depth 1+ numbers, this wont work.
 function AlephNum.toLeaderboard(value: AN): number
-	value = AlephNum.fix(value)
+	value = AlephNum.round(AlephNum.fix(value))
+	value = AlephNum.clamp(value, "-9e999", "9e999")
 
 	if isAN(value.Layer) then
 		return -1
 	elseif value.Sign == 0 then
 		return 0
+	elseif value.Layer == 0 then
+		return value:toNumber()
 	end
 
 	local string: string = tostring(value.Sign)
@@ -826,7 +819,7 @@ function AlephNum.fromLeaderboard(value: number): AN
 	const text: string = tostring(value)
 
 	if #text ~= 18 then
-		return tonumber(value)
+		return AlephNum.convert(value)
 	end
 
 	const sign: number = tonumber(text:sub(1, 1))
