@@ -11,7 +11,7 @@ As of right now, AlephNum currently supports many math functions, high precision
 # Installation
 To download the library in the form of a [**wally dependency**](https://wally.run/package/archadiumm/alephnum), please copy and paste the text below into the dependencies list.
 ```md
-AlephNum = "archadiumm/alephnum@1.5.2"
+AlephNum = "archadiumm/alephnum@1.5.3"
 ```
 
 For other installation methods, please go to the [latest release](https://github.com/archadiumm/AlephNum/releases/latest).
