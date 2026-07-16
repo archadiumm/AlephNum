@@ -991,7 +991,15 @@ function AlephNum.toString(
 	const abs = AlephNum.abs(value)
 
 	if notation == "None" or AlephNum.cmp(abs, threshold, "<") then
-		return tostring(value:toNumber())
+		const toNum: number = value:toNumber()
+
+		if math.isinf(toNum) then
+			return "inf"
+		end
+
+		return tostring(
+			math.round(toNum * digitPower) / digitPower
+		)
 	end
 
 	if notation == "Scientific" then
@@ -1085,7 +1093,7 @@ function AlephNum.toString(
 		end
 
 		const tier = math.floor(baseTier)
-		const extra = div3 - tier
+		const extra = math.floor(log10) / 3 - tier
 
 		local mantissa: number
 
