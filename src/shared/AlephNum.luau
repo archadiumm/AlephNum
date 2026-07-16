@@ -434,11 +434,6 @@ const function cmp(
 	local cmp1 = value1[name]
 	local cmp2 = value2[name]
 
-	if name == "Exp" then
-		cmp1 = (value1.Exp * value1.Sign * value1.Mantissa)
-		cmp2 = (value2.Exp * value2.Sign * value2.Mantissa)
-	end
-
 	if compareString == ">" or compareString == ">=" then
 		result = (compareString == ">" and (cmp1 > cmp2) or (compareString == ">=" and (cmp1 >= cmp2)))
 	elseif compareString == "<" or compareString == "<=" then
@@ -1190,17 +1185,21 @@ function AlephNum.cmp(value1: AN, value2: AN, compareString: "==" | ">=" | "<=" 
 	value1, value2 = AlephNum.normalizeTwo(value1, value2)
 
 	if compareString == "!=" or compareString == "~=" then
-		result = ((value1.Layer ~= value2.Layer) or (value1.Exp ~= value2.Exp) or (value1.Sign ~= value2.Sign))
+		result = ((value1.Layer ~= value2.Layer) or (value1.Exp ~= value2.Exp) or (value1.Sign ~= value2.Sign) or (value1.Mantissa ~= value2.Mantissa))
 		return result
 	elseif compareString == "==" then
-		result = ((value1.Layer == value2.Layer) and (value1.Exp == value2.Exp) and (value1.Sign == value2.Sign))
+		result = ((value1.Layer == value2.Layer) and (value1.Exp == value2.Exp) and (value1.Sign == value2.Sign) and (value1.Mantissa == value2.Mantissa))
 
 		return result
 	end
 
 	if value1.Sign == value2.Sign then
 		if value1.Layer == value2.Layer then
-			result = cmp(value1, value2, "Exp", compareString)
+			if value1.Exp == value2.Exp then
+				result = cmp(value1, value2, "Mantissa", compareString)
+			else
+				result = cmp(value1, value2, "Exp", compareString)
+			end
 		end
 	else
 		result = cmp(value1, value2, "Sign", compareString)

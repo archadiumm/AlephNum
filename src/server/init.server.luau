@@ -1,12 +1,7 @@
 --!nocheck
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AlephNum = require(ReplicatedStorage.Shared.AlephNum)
+const ReplicatedStorage = game:GetService("ReplicatedStorage")
+const AlephNum = require(ReplicatedStorage.Shared.AlephNum)
 
-print(AlephNum.fromNumber(6.8374782828272e2):toSuffix())
-print(AlephNum.fromNumber(6.8374782828272e3):toSuffix())
-print(AlephNum.fromNumber(6.8374782828272e4):toSuffix())
-print(AlephNum.fromNumber(6.8374782828272e5):toSuffix())
-print(AlephNum.fromNumber(6.8374782828272e6):toSuffix())
-print(AlephNum.fromNumber(6.8374782828272e7):toSuffix())
-print(AlephNum.fromNumber(6.8374782828272e8):toSuffix())
+print(AlephNum.cmp("1e12", "9.45e11", "<"))
+print(AlephNum.cmp("1e1e132", "9.435e11", ">"))
