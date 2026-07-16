@@ -1,10 +1,10 @@
 <div align="center">
 	<h1><img src="https://github.com/archadiumm/AlephNum/blob/master/assets/alephnum-title.png" width="380" style="display: block; margin: 0 auto; padding: 0;"></h1>
-	<p><i>Calculate numbers up to </i><code>10 ↑↑↑ 16</code><a href="https://github.com/archadiumm/AlephNum#alephnums-limit">*</a></p>
+	<p><i>Calculate numbers up to </i><code>10 ↑↑ 1e308</code><a href="https://github.com/archadiumm/AlephNum#alephnums-limit">*</a></p>
 </div>
 
 > [!CAUTION]
-> AlephNum is having issues with suffixes and certain math functions right now. Please wait until 1.6.0 to use again.
+> AlephNum is having issues with some suffixes and other things. Please wait until 2.0.0 to use again.
 
 # About
 AlephNum is a luau number library inspired from other libraries like **EternityNum**, **InfiniteMath**, and **Hypercalc**. To put it simply, AlephNum is a luau library that can handle very VERY big numbers. It is mainly intended for incremental games, but can also be used in any luau project that needs to go past the number limits.
@@ -65,18 +65,8 @@ AlephNum's number format was heavily inspired by EternityNum's. Each AN (AlephNu
 * **Layer 2**:    Value = `S * M * 10^(10^E)`
 * _it keeps going.._
 
-## AlephNum's Limit
-> [!CAUTION]
-> Certain numbers above <code>10 ↑↑ (1e308)</code> have been shown to have overflow bugs. Be patient while I try to fix this.
-
-The reason why **EternityNum** and other libraries max out at about <code>10↑↑(1e308)</code> is because `1e308` is the highest number roblox can handle.
-
-AlephNum solves this problem by making the layer an AN every time it gets to inf. This keeps going until the set depth limit, which in AlephNum's case is **16** by default.
-
-Numbers can go higher than this if you change the depth limit, but there's no use for numbers past `10 ↑↑↑ 3` even, let alone `10 ↑↑↑ 16`. Along with that, numbers kind of get a bit buggy at that point, and leaderboard encoding becomes impossible.
-
 ## Why?
-Look, I will be honest. AlephNum being able to go past other previous limits like `1e308`, <code>10 ↑↑ (1e308)</code>, and all the way up to `10 ↑↑↑ 16` was not my main priority at all. It wasn't even the thing I worked hardest on.
+Look, I will be honest. AlephNum being able to go past other previous limits like `1e308`, <code>10 ↑↑ 308</code>, and all the way up to `10 ↑↑ 1e308` was not my main priority at all. It wasn't even the thing I worked hardest on.
 
 The thing I worked hardest on was making the user experience as enjoyable as possible. I've used **EternityNum**, **Quicknum**, **QubitNum**, **InfiniteMath**, etc. and I have just had problems with them. Some were too slow, too clunky, had messy source code, terrible number limits, all of the above sometimes. I wanted to make this for you guys, as my first genuine project.
 
@@ -86,4 +76,4 @@ The thing I worked hardest on was making the user experience as enjoyable as pos
 
 I know AlephNum isn't perfect, but I am trying to make it that way for you guys.
 
-Nobody may ever have a game that even gets close to `10 ↑↑↑ 16`, and thats okay. All I wanted was for developers like me to be able to produce games I like _(incrementals, simulators, etc.)_ a lot better.
+Nobody may ever have a game that even gets close to `10 ↑↑ 1e308`, and thats okay. All I wanted was for developers like me to be able to produce games I like _(incrementals, simulators, etc.)_ a lot better.
