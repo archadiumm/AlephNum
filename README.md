@@ -3,6 +3,9 @@
 	<p><i>Calculate numbers up to </i><code>10 ↑↑↑ 16</code><a href="https://github.com/archadiumm/AlephNum#alephnums-limit">*</a></p>
 </div>
 
+> [!CAUTION]
+> AlephNum is having issues with suffixes and certain math functions right now. Please wait until 1.6.0 to use again.
+
 # About
 AlephNum is a luau number library inspired from other libraries like **EternityNum**, **InfiniteMath**, and **Hypercalc**. To put it simply, AlephNum is a luau library that can handle very VERY big numbers. It is mainly intended for incremental games, but can also be used in any luau project that needs to go past the number limits.
 
