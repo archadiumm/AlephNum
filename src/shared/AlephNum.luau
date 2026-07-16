@@ -219,12 +219,35 @@ const function checkVersion()
 			return
 		end
 		
-		const response: table = HttpService:JSONDecode(request)
+		const response: {versionName: string, tag_name: string, html_url: string} = HttpService:JSONDecode(request)
+
+		if response["tag_name"] == nil then
+			return
+		end
+
+		local numVersion: string = (versionName:gsub("%D", ""))
+		local numTag: string = (response.tag_name:gsub("%D", ""))
+
+		numVersion = (tonumber(numVersion) or 100) :: number
+		numTag = (tonumber(numTag) or 100) :: number
 		
-		if response["tag_name"] ~= versionName and response["tag_name"] ~= nil then
+		if response.tag_name ~= versionName then
+			if numVersion > numTag then
+				warn(`┏ [AlephNum] Wow, you are in the future! Is this a dev build?`)
+				warn(`┃  ╸ v{versionName} is unstable right now, so you can downgrade to v{response.tag_name} from the link below.`)
+				warn(`┗  ╸ https://github.com/archadiumm/AlephNum/releases/latest`)
+
+				return
+			end
+
 			warn(`┏ [AlephNum] Seems like you are currently running v{versionName}.`)
-			warn(`┃  ╸ Please download the newest version (v{response["tag_name"]}) from the link below.`)
+			warn(`┃  ╸ Please download the newest version (v{response.tag_name}) from the link below.`)
 			warn(`┗  ╸ https://github.com/archadiumm/AlephNum/releases/latest`)
+		else
+			const url_table = {url = response.html_url}
+
+			print(`┏ [AlephNum] Currently using the latest version. (v{versionName}).`)
+			print(`┗  ╸ For more information, check out the changelog at:`, url_table)
 		end
 	end
 end
@@ -1031,7 +1054,7 @@ function AlephNum.toString(
 
 				local newExp: AN = AlephNum.fromNumber(value.Exp)
 
-				for _i: number = 1, value.Layer - 1 do
+				for _index: number = 1, value.Layer - 1 do
 					newExp = AlephNum.pow10(newExp)
 				end
 
@@ -1418,6 +1441,32 @@ function AlephNum.ln(value: AN): AN
 	return AlephNum.log(value, AlephNum.e)
 end
 
+-- ~ AlephNum.slog() ~
+-- ------------------
+-- [?] Gets the super logarithm of an AN number.
+-- [>] Input two AlephNum (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.slog(value: AN, base: AN): AN
+	const height: AN = AlephNum.fromNumber(0)
+	
+	value = AlephNum.fix(AlephNum.clone(value))
+	base = AlephNum.fix(AlephNum.clone(base))
+
+	while AlephNum.cmp(value, base, ">=") do
+		value = AlephNum.log(value, base)
+		height:add(1)
+
+		if (height % 10) == 0 then
+			task.wait()
+		end
+	end
+
+	value:sub(1)
+	base:sub(1)
+
+	return AlephNum.add(height, AlephNum.div(value, base))
+end
+
 -- ~ AlephNum.exp() ~
 -- ------------------
 -- [?] Gets the e^x of an AN number.
@@ -1488,6 +1537,45 @@ function AlephNum.pow(base: AN, power: AN): AN
 	const pow10 = AlephNum.pow10(mul)
 
 	return pow10
+end
+
+-- ~ AlephNum.tetrate() ~
+-- ------------------
+-- [?] Tetrates an (AN) to the height of another (AN).
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+--  * [+] Tetration by decimals can be a bit off. Along with heights < 1.
+function AlephNum.tetrate(base: AN, height: AN): AN
+	base = AlephNum.fix(base)
+	height = AlephNum.fix(height)
+
+	if height.Layer >= 1 or math.isinf(height:toNumber()) then
+		const slog = AlephNum.slog(base, height):floor()
+
+		return AlephNum.fromTuple(base.Sign, (base.Layer + slog), base.Exp, base.Mantissa)
+	end
+
+	local result: AN = base
+
+	const heightNum: number = height:toNumber()
+	const floor: number = math.floor(heightNum)
+
+	if floor ~= heightNum then
+		const decimal: number = AlephNum.fromNumber(heightNum - floor)
+		const ceil: number = math.ceil(heightNum)
+
+		const lower: AN = AlephNum.tetrate(base, floor)
+		const upper: AN = AlephNum.tetrate(base, ceil)
+
+		const uml: AN = AlephNum.sub(upper, lower):mul(decimal)
+		result = AlephNum.add(lower, uml)
+	else
+		for _index: number = 2, heightNum do
+			result = AlephNum.pow(base, result)
+		end
+	end
+
+	return result
 end
 
 -- ~ AlephNum.root() ~
@@ -1683,6 +1771,14 @@ function AlephNum.round(value: AN)
 
 		return clone
 	end
+end
+
+-- ~ AlephNum.checkVersion() ~
+-- ------------------
+-- [?] Checks for the latest version, and prints if you have it or not.
+--  * [+] You need to have HTTP Requests enabled to use this.
+function AlephNum.checkVersion()
+	task.spawn(checkVersion)
 end
 
 -- // Aleph Functions \\ --
@@ -1928,10 +2024,6 @@ end
 AlephNum.pi = AlephNum.fromNumber(math.pi)
 AlephNum.e = AlephNum.fromNumber(math.e)
 
--- ~ Version Checker ~ --
-
-task.spawn(checkVersion)
-
 return AlephNum :: {
 	new: typeof(AlephNum.new),
 	convert: typeof(AlephNum.convert),
@@ -1953,6 +2045,7 @@ return AlephNum :: {
 	div: typeof(AlephNum.div),
 	pow: typeof(AlephNum.pow),
 	pow10: typeof(AlephNum.pow10),
+	tetrate: typeof(AlephNum.tetrate),
 	exp: typeof(AlephNum.exp),
 	mod: typeof(AlephNum.mod),
 
@@ -1971,6 +2064,7 @@ return AlephNum :: {
 	log10: typeof(AlephNum.log10),
 	log: typeof(AlephNum.log),
 	ln: typeof(AlephNum.ln),
+	slog: typeof(AlephNum.slog),
 
 	neg: typeof(AlephNum.neg),
 	unm: typeof(AlephNum.unm),
@@ -1982,6 +2076,8 @@ return AlephNum :: {
 
 	setConfig: typeof(AlephNum.setConfig),
 	Config: typeof(AlephNum.Config),
+
+	checkVersion: typeof(AlephNum.checkVersion),
 
 	pi: typeof(AlephNum.pi),
 	e: typeof(AlephNum.e),
