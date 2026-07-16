@@ -912,7 +912,7 @@ function AlephNum.toNumber(value: AN): number
 	else
 		newNumber = value.Sign * value.Mantissa
 
-		local exp: number
+		local exp: number = value.Exp
 
 		for i = 1, value.Layer do
 			if i >= value.Layer then
