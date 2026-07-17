@@ -45,7 +45,7 @@ const zero: AN = {
 }
 
 const expLimit = 1e10
-const inf = (2 - 2^-52) * 2^1023
+const inf = (2 - 2 ^ -52) * 2 ^ 1023
 
 const compareStrings = { "==", ">=", "<=", ">", "<", "!=", "~=" }
 
@@ -160,6 +160,9 @@ const suffixes = {
 	},
 }
 
+local randFrames = 0
+local lastRF = os.clock()
+
 const scriptLocation: string = script:GetFullName()
 
 -- // Types \\ --
@@ -186,6 +189,21 @@ const function reverse<T>(tbl: { T }): { T }
 	return result
 end
 
+const function getRand(min: number, max: number): number
+	min = AlephNum.toNumber(min)
+	max = AlephNum.toNumber(max)
+
+	if (os.clock() - lastRF) > 0.1 then
+		lastRF = 0
+	end
+
+	const quantized = math.round((os.clock() * 1000) + randFrames)
+	randFrames += 1
+
+	const rand = Random.new(quantized)
+	return rand:NextInteger(min, max)
+end
+
 const function toLength(number: number, length: length)
 	number = math.round(number * 100)
 
@@ -206,34 +224,36 @@ const function checkVersion()
 	const httpCheck, _ = pcall(function()
 		return HttpService:GetAsync("https://google.com/")
 	end)
-	
+
 	if not httpCheck then
 		warn(`┏ [AlephNum] AlephNum cannot check the latest version!`)
 		warn(`┃  ╸ Please turn on HTTP Requests to fix this.`)
 		warn(`┗  ╸ Experience Settings > Security > Allow HTTP Requests`)
 	else
 		const request: string = HttpService:GetAsync(endpoint)
-		
+
 		if not request then
 			return
 		end
-		
-		const response: {versionName: string, tag_name: string, html_url: string} = HttpService:JSONDecode(request)
+
+		const response: { versionName: string, tag_name: string, html_url: string } = HttpService:JSONDecode(request)
 
 		if response["tag_name"] == nil then
 			return
 		end
 
-		local numVersion: string = (versionName:gsub("%D", ""))
-		local numTag: string = (response.tag_name:gsub("%D", ""))
-
-		numVersion = (tonumber(numVersion) or 100) :: number
-		numTag = (tonumber(numTag) or 100) :: number
-		
 		if response.tag_name ~= versionName then
-			if numVersion > numTag then
+			local numVersion: string = (versionName:gsub("%D", ""))
+			local numTag: string = (response.tag_name:gsub("%D", ""))
+
+			numVersion = (tonumber(numVersion) or 100) :: number
+			numTag = (tonumber(numTag) or 100) :: number
+
+			if numVersion >= numTag then
 				warn(`┏ [AlephNum] Wow, you are in the future! Is this a dev build?`)
-				warn(`┃  ╸ v{versionName} is unstable right now, so you can downgrade to v{response.tag_name} from the link below.`)
+				warn(
+					`┃  ╸ v{versionName} is unstable right now, so you can downgrade to v{response.tag_name} from the link below.`
+				)
 				warn(`┗  ╸ https://github.com/archadiumm/AlephNum/releases/latest`)
 
 				return
@@ -243,7 +263,7 @@ const function checkVersion()
 			warn(`┃  ╸ Please download the newest version (v{response.tag_name}) from the link below.`)
 			warn(`┗  ╸ https://github.com/archadiumm/AlephNum/releases/latest`)
 		else
-			const url_table = {url = response.html_url}
+			const url_table = { url = response.html_url }
 
 			print(`┏ [AlephNum] Currently using the latest version. (v{versionName}).`)
 			print(`┗  ╸ For more information, check out the changelog at:`, url_table)
@@ -466,6 +486,11 @@ const function cmp(
 
 	local cmp1 = value1[name]
 	local cmp2 = value2[name]
+
+	if name ~= "Sign" then
+		cmp1 *= value1.Sign
+		cmp2 *= value2.Sign
+	end
 
 	if compareString == ">" or compareString == ">=" then
 		result = (compareString == ">" and (cmp1 > cmp2) or (compareString == ">=" and (cmp1 >= cmp2)))
@@ -952,7 +977,7 @@ function AlephNum.fromString(value: string): AN
 	const defSlice: { string? } = value:split(";")
 
 	if not isNIL(valueNum) and not math.isinf(valueNum) and not value:find("e") and not value:find(";") then
-		newValue = tupleNum(math.sign(valueNum), 0, math.abs(valueNum), 1)
+		newValue = AlephNum.fromNumber(valueNum)
 	elseif #sciSlice >= 2 then
 		newValue = nil
 
@@ -975,6 +1000,10 @@ function AlephNum.fromString(value: string): AN
 
 			newValue = AlephNum.mul(AlephNum.fromNumber(number), AlephNum.pow(10, old))
 		end
+
+		if string.sub(value, 1, 1) == "-" then
+			newValue.Sign = -1
+		end
 	elseif #defSlice == 2 then
 		const mantissa = tonumber(defSlice[1]) or 1
 		const exponent = tonumber(defSlice[2]) or 0
@@ -993,7 +1022,12 @@ end
 --  *  [+] You can also change the default config using setConfig() instead of typing the options every time!
 function AlephNum.toString(
 	value: AN,
-	options: { Notation: "None" | "Scientific" | "Suffix", Threshold: number, SciThreshold: number, Digits: number }?
+	options: {
+		Notation: "None" | "Scientific" | "Suffix",
+		Threshold: number,
+		SciThreshold: number,
+		Digits: number,
+	}?
 ): string
 	value = AlephNum.fix(value)
 
@@ -1019,9 +1053,7 @@ function AlephNum.toString(
 			return "inf"
 		end
 
-		return tostring(
-			math.round(toNum * digitPower) / digitPower
-		)
+		return tostring(math.round(toNum * digitPower) / digitPower)
 	end
 
 	if notation == "Scientific" then
@@ -1187,6 +1219,76 @@ function AlephNum.toScientific(value: AN, digits: number?, threshold: number?)
 	return AlephNum.toString(value, { Digits = digits, Notation = "Scientific", Threshold = threshold })
 end
 
+-- ~ AlephNum.rand() ~
+-- ------------------
+-- [?] Gets a random AlephNum (AN) number.
+-- [>] Input two AlephNum values (minimum, maximum).
+-- [<] Returns an AlephNum between the two values.
+--  * [+] Inputting no minimum and no maximum makes it act like math.random()
+function AlephNum.rand(minimum: AN?, maximum: AN?): AN
+	if isNIL(minimum) and isNIL(maximum) then
+		return AlephNum.fromNumber(math.random())
+	end
+
+	minimum = AlephNum.min(minimum, maximum)
+	maximum = AlephNum.max(maximum, minimum)
+
+	if minimum.Layer == 0 and maximum.Layer == 0 then
+		return AlephNum.fromNumber(getRand(minimum, maximum))
+	end
+
+	local magnitude: number = 0
+	local logMin: number, logMax: number = minimum, maximum
+
+	if minimum.Layer > 0 or maximum.Layer > 0 then
+		repeat
+			logMin = AlephNum.log10(logMin)
+			logMax = AlephNum.log10(logMax)
+			magnitude += 1
+
+			if not math.isinf(logMin:toNumber()) and not math.isinf(logMax:toNumber()) then
+				logMin = logMin:toNumber()
+				logMax = logMax:toNumber()
+
+				break
+			end
+		until false
+	end
+
+	const qMantissa: number = getRand(minimum.Mantissa * minimum.Sign * 100, maximum.Mantissa * maximum.Sign * 100)
+	local randLog: number
+
+	if minimum.Sign == maximum.Sign then
+		randLog = getRand(logMin, logMax)
+	else
+		const qmSign = math.sign(qMantissa)
+
+		if qmSign == 0 then
+			return toMeta(zero)
+		else
+			if minimum.Sign == qmSign then
+				randLog = getRand(logMin, 0)
+			else
+				randLog = getRand(0, logMax)
+			end
+		end
+	end
+
+	const randMantissa: AN = AlephNum.div(qMantissa, 100)
+	local randExp: AN = AlephNum.fromNumber(randLog)
+
+	if magnitude > 0 then
+		for _index: number = 1, magnitude do
+			randExp:pow10()
+		end
+	end
+
+	const result: AN = AlephNum.mul(randMantissa, randExp)
+	const clamped: AN = AlephNum.clamp(result, minimum, maximum)
+
+	return clamped
+end
+
 -- // Operations \\ --
 
 -- ~ AlephNum.cmp() ~
@@ -1225,10 +1327,20 @@ function AlephNum.cmp(value1: AN, value2: AN, compareString: "==" | ">=" | "<=" 
 	value1, value2 = AlephNum.normalizeTwo(value1, value2)
 
 	if compareString == "!=" or compareString == "~=" then
-		result = ((value1.Layer ~= value2.Layer) or (value1.Exp ~= value2.Exp) or (value1.Sign ~= value2.Sign) or (value1.Mantissa ~= value2.Mantissa))
+		result = (
+			(value1.Layer ~= value2.Layer)
+			or (value1.Exp ~= value2.Exp)
+			or (value1.Sign ~= value2.Sign)
+			or (value1.Mantissa ~= value2.Mantissa)
+		)
 		return result
 	elseif compareString == "==" then
-		result = ((value1.Layer == value2.Layer) and (value1.Exp == value2.Exp) and (value1.Sign == value2.Sign) and (value1.Mantissa == value2.Mantissa))
+		result = (
+			(value1.Layer == value2.Layer)
+			and (value1.Exp == value2.Exp)
+			and (value1.Sign == value2.Sign)
+			and (value1.Mantissa == value2.Mantissa)
+		)
 
 		return result
 	end
@@ -1457,7 +1569,7 @@ end
 -- [<] Returns an AlephNum (AN) number.
 function AlephNum.slog(value: AN, base: AN): AN
 	const height: AN = AlephNum.fromNumber(0)
-	
+
 	value = AlephNum.fix(AlephNum.clone(value))
 	base = AlephNum.fix(AlephNum.clone(base))
 
@@ -1632,6 +1744,15 @@ function AlephNum.cbrt(value: AN): AN
 	return AlephNum.root(value, 3)
 end
 
+-- ~ AlephNum.lerp() ~
+-- ------------------
+-- [?] Lerps an AlephNum value to an end position.
+-- [>] Input three (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.lerp(value: AN, endValue: AN, lerpTime: AN): AN
+	return AlephNum.add(value, AlephNum.mul(AlephNum.sub(endValue, value), lerpTime))
+end
+
 -- ~ AlephNum.fact() ~
 -- ------------------
 -- [?] Gets the factorial of an AlephNum (AN) number.
@@ -1719,13 +1840,35 @@ function AlephNum.clamp(value: AN, lowerLimit: AN, upperLimit: AN): AN
 	lowerLimit = AlephNum.fix(lowerLimit)
 	upperLimit = AlephNum.fix(upperLimit)
 
-	if value < lowerLimit then
-		return lowerLimit
-	elseif value > upperLimit then
-		return upperLimit
-	end
+	value = AlephNum.max(lowerLimit, AlephNum.min(value, upperLimit))
 
 	return value
+end
+
+-- ~ AlephNum.min() ~
+-- ------------------
+-- [?] Gets the minimum of two AlephNum numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.min(value1: AN, value2: AN): AN
+	if AlephNum.cmp(value1, value2, "<") then
+		return AlephNum.fix(value1)
+	else
+		return AlephNum.fix(value2)
+	end
+end
+
+-- ~ AlephNum.max() ~
+-- ------------------
+-- [?] Gets the maximum of two AlephNum numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.max(value1: AN, value2: AN): AN
+	if AlephNum.cmp(value1, value2, ">") then
+		return AlephNum.fix(value1)
+	else
+		return AlephNum.fix(value2)
+	end
 end
 
 -- ~ AlephNum.floor() ~
@@ -1941,6 +2084,20 @@ function AN:clamp(lowerLimit: AN, upperLimit: AN): AN
 	return self
 end
 
+function AN:min(minimum: AN): AN
+	const result = AlephNum.min(self, minimum)
+	self:update(result)
+
+	return self
+end
+
+function AN:max(maximum: AN): AN
+	const result = AlephNum.max(self, maximum)
+	self:update(result)
+
+	return self
+end
+
 function AN:round(): AN
 	const result = AlephNum.round(self)
 	self:update(result)
@@ -1972,6 +2129,13 @@ end
 
 function AN:is(value: any): boolean
 	return AlephNum.cmp(self, value, "==")
+end
+
+function AN:lerp(endValue: AN, lerpTime: AN): AN
+	const result = AlephNum.lerp(self, endValue, lerpTime)
+	self:update(result)
+
+	return self
 end
 
 -- ~ Metamethods ~ --
@@ -2036,6 +2200,7 @@ AlephNum.e = AlephNum.fromNumber(math.e)
 return AlephNum :: {
 	new: typeof(AlephNum.new),
 	convert: typeof(AlephNum.convert),
+	rand: typeof(AlephNum.rand),
 
 	fromNumber: typeof(AlephNum.fromNumber),
 	fromString: typeof(AlephNum.fromString),
@@ -2057,6 +2222,7 @@ return AlephNum :: {
 	tetrate: typeof(AlephNum.tetrate),
 	exp: typeof(AlephNum.exp),
 	mod: typeof(AlephNum.mod),
+	lerp: typeof(AlephNum.lerp),
 
 	fact: typeof(AlephNum.fact),
 
@@ -2065,6 +2231,8 @@ return AlephNum :: {
 	cbrt: typeof(AlephNum.cbrt),
 
 	clamp: typeof(AlephNum.clamp),
+	min: typeof(AlephNum.min),
+	max: typeof(AlephNum.max),
 
 	floor: typeof(AlephNum.floor),
 	round: typeof(AlephNum.round),

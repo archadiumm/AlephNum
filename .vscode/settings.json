@@ -1,3 +1,21 @@
 {
-    "stylua.targetReleaseVersion": "latest"
+    "stylua.targetReleaseVersion": "latest",
+    "luau-lsp.sourcemap.enabled": true,
+    "luau-lsp.sourcemap.autogenerate": true,
+    "luau-lsp.types.definitionFiles": [
+        "globalTypes.d.luau"
+    ],
+
+    "[lua]": {
+        "editor.defaultFormatter": "JohnnyMorganz.stylua",
+        "editor.formatOnSave": true
+    },
+        "[luau]": {
+        "editor.defaultFormatter": "JohnnyMorganz.stylua",
+        "editor.formatOnSave": true
+    },
+        "workbench.editor.customLabels.patterns": {
+        "**/init.lua": "${dirname} (${filename}.${extname})",
+        "**/init.luau": "${dirname} (${filename}.${extname})"
+    }
 }
