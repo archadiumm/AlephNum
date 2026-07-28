@@ -1,4 +1,3 @@
-local AlephNum = require(game.ReplicatedStorage.Shared.AlephNum)
+-- Go to src/shared to see the library.
 
-local div = AlephNum.div(38000, 1000000)
-print(div:toNumber(), AlephNum.sqrt(div):toNumber())
+-- The other scripts are test scripts used in development
