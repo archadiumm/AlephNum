@@ -3,9 +3,6 @@
 	<p><i>Calculate numbers up to </i><code>10 ↑↑ 1e308</code></p>
 </div>
 
-> [!CAUTION]
-> AlephNum is having issues with some suffixes and other things. Please wait until 2.0.0 to use again.
-
 # About
 AlephNum is a luau number library inspired from other libraries like **EternityNum**, **InfiniteMath**, and **Hypercalc**. To put it simply, AlephNum is a luau library that can handle very VERY big numbers. It is mainly intended for incremental games, but can also be used in any luau project that needs to go past the number limits.
 
@@ -44,7 +41,6 @@ const addition = AlephNum.add(1, 2) -- Does 1 + 2. Self-explanatory.
 print(AlephNum.fromNumber(1e8):toSuffix()) -- Prints "100M"
 print(AlephNum.toScientific(100000000000000000000)) -- Prints "1e20"
 ```
-> AlephNum handles many math functions, and in the next update will be able to handle slogs, tetration and (maybe) pentation.
 
 By the way, there is a config (`AlephNum.setConfig`/`AlephNum.Config`) that you can use to set default notation, threshold, etc.
 # Number Format
