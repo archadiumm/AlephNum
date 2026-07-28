@@ -1633,6 +1633,16 @@ function AlephNum.pow(base: AN? | string | number, power: AN? | string | number)
 	power = AlephNum.fix(power)
 	base = AlephNum.fix(base)
 
+	if base.Sign < 0 then
+		const scriptName: string, line: string = debugWhere()
+
+		warn(`┏ [AlephNum] Tried to do pow with a negative base!`)
+		warn(`┃  ╸ Pow with negative bases is currently not supported.`)
+		warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+
+		return base
+	end
+
 	const floatMath: number = base:toNumber() ^ power:toNumber()
 
 	if not math.isinf(floatMath) then
