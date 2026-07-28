@@ -18,11 +18,12 @@
 const AlephNum = {}
 const AN = {}
 
+AlephNum.__index = AN
+
 const HttpService = game:GetService("HttpService")
 const endpoint = "https://api.github.com/repos/archadiumm/alephnum/releases/latest"
 const versionName = "2.0.0"
 
-AlephNum.__index = AN
 AlephNum.Config = {
 	["StrictMode"] = false, -- If true, the script will halt instead of give warnings when things go wrong.
 
@@ -30,7 +31,7 @@ AlephNum.Config = {
 	["SciNotation"] = "None", -- None (1e1000000000000), Scientific (1e2e3e10), or Suffix (1e20k)
 
 	["Threshold"] = 1e3, -- How big a number needs to be to be abbreviated into the Notation.
-	["SciThreshold"] = 10, -- Caps out scientific abbreviated numbers from being too long (1e1e1e1e1e1e1e1e1e1e1e1e1e10 vs 10 ^^ 14)
+	["SciThreshold"] = 10, -- Caps out scientific abbreviated numbers from being too long (2e1e1e1e1e1e1e1e1e1e1e1e1e10 vs 2 * 10 ^^ 14)
 
 	["Digits"] = 2, -- How many decimal places are shown (1k or 1.23k or 1.234567k, etc.)
 }
@@ -190,7 +191,7 @@ const function getRand(min: number, max: number): number
 	return rand:NextInteger(min, max)
 end
 
-const function toLength(number: number, length: length)
+const function toLength(number: number, length: number)
 	number = math.round(number * 100)
 
 	local text: string = tostring(number)
@@ -1939,12 +1940,6 @@ end
 
 -- // Aleph Functions \\ --
 
--- ~ AN:update() ~
--- ------------------
--- [?] Used for development purposes to keep an AN metatable in sync.
--- [>] Input an AlephNum (AN) number.
--- [<] Returns an AlephNum (AN) number.
---  * [+] Not reccomended to use.
 function AN:update(result: AN? | string | number): AN
 	self = self :: AN
 	self.Mantissa = result.Mantissa
@@ -2207,15 +2202,12 @@ AlephNum.e = AlephNum.fromNumber(math.e)
 
 -- // Types \\ --
 
-export type AN = typeof(setmetatable(
-	{} :: {
-		Sign: number,
-		Layer: number,
-		Exp: number,
-		Mantissa: number,
-	},
-	AlephNum
-))
+export type AN = setmetatable<{
+	Sign: number,
+	Layer: number,
+	Exp: number,
+	Mantissa: number,
+}, typeof(AlephNum)>
 
 return AlephNum :: {
 	new: typeof(AlephNum.new),
