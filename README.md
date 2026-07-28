@@ -1,6 +1,6 @@
 <div align="center">
-	<h1><img src="https://github.com/archadiumm/AlephNum/blob/master/assets/alephnum-title.png" width="380" style="display: block; margin: 0 auto; padding: 0;"></h1>
-	<p><i>Calculate numbers up to </i><code>10 ↑↑ 1e308</code><a href="https://github.com/archadiumm/AlephNum#alephnums-limit">*</a></p>
+	<h1><img src="https://github.com/archadiumm/AlephNum/blob/master/assets/alephnum-title2.png" width="380" style="display: block; margin: 0 auto; padding: 0;"></h1>
+	<p><i>Calculate numbers up to </i><code>10 ↑↑ 1e308</code></p>
 </div>
 
 > [!CAUTION]
@@ -14,7 +14,7 @@ As of right now, AlephNum currently supports many math functions, high precision
 # Installation
 To download the library in the form of a [**wally dependency**](https://wally.run/package/archadiumm/alephnum), please copy and paste the text below into the dependencies list.
 ```md
-AlephNum = "archadiumm/alephnum@1.5.3"
+AlephNum = "archadiumm/alephnum@2.0.0"
 ```
 
 For other installation methods, please go to the [latest release](https://github.com/archadiumm/AlephNum/releases/latest).
