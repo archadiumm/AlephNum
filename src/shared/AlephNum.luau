@@ -409,6 +409,10 @@ const function correct(value: AN? | string | number): AN
 		value.Exp = -value.Exp
 	end
 
+	if value.Layer == 0 and value.Exp == 0 then
+		value.Sign = 0
+	end
+
 	-- ~ Layer 1 ~ --
 	if value.Exp <= 0 and value.Layer == 1 then
 		value.Exp = math.pow(10, value.Exp) * value.Mantissa
@@ -441,9 +445,6 @@ const function correct(value: AN? | string | number): AN
 			until value.Mantissa >= 1
 		end
 	end
-
-	-- ~ Layer 2+ ~ --
-	-- layer 2+ cleanups later
 
 	return value
 end
@@ -1633,7 +1634,11 @@ function AlephNum.pow(base: AN? | string | number, power: AN? | string | number)
 	power = AlephNum.fix(power)
 	base = AlephNum.fix(base)
 
-	if base.Sign < 0 then
+	const floatMath: number = base:toNumber() ^ power:toNumber()
+
+	if not math.isinf(floatMath) then
+		return AlephNum.fromNumber(floatMath)
+	elseif base.Sign < 0 then
 		const scriptName: string, line: string = debugWhere()
 
 		warn(`┏ [AlephNum] Tried to do pow with a negative base!`)
@@ -1641,12 +1646,6 @@ function AlephNum.pow(base: AN? | string | number, power: AN? | string | number)
 		warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
 
 		return base
-	end
-
-	const floatMath: number = base:toNumber() ^ power:toNumber()
-
-	if not math.isinf(floatMath) then
-		return AlephNum.fromNumber(floatMath)
 	end
 
 	if power:is(0) then
