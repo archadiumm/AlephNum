@@ -41,7 +41,6 @@ const addition = AlephNum.add(1, 2) -- Does 1 + 2. Self-explanatory.
 print(AlephNum.fromNumber(1e8):toSuffix()) -- Prints "100M"
 print(AlephNum.toScientific(100000000000000000000)) -- Prints "1e20"
 ```
-> AlephNum handles many math functions, and in the next update will be able to handle slogs, tetration and (maybe) pentation.
 
 By the way, there is a config (`AlephNum.setConfig`/`AlephNum.Config`) that you can use to set default notation, threshold, etc.
 # Number Format
