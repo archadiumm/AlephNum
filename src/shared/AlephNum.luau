@@ -269,7 +269,7 @@ const function isAN(value: AN? | string | number): boolean
 	)
 end
 
-const function toNumber(value: AN? | string | number): number
+const function toNumber(value: AN?): number
 	if typeof(value) == "number" then
 		return value
 	end
@@ -1207,6 +1207,15 @@ function AlephNum.toScientific(value: AN? | string | number, digits: number?, th
 	return AlephNum.toString(value, { Digits = digits, Notation = "Scientific", Threshold = threshold })
 end
 
+-- ~ AlephNum.toNumber() ~
+-- ------------------
+-- [?] Converts AlephNum (AN) numbers into a number type.
+-- [>] Input an AlephNum number.
+-- [<] Returns a number.
+function AlephNum.toNumber(value: AN): number
+	return 
+end
+
 -- ~ AlephNum.rand() ~
 -- ------------------
 -- [?] Gets a random AlephNum (AN) number.
@@ -1275,6 +1284,93 @@ function AlephNum.rand(minimum: AN? | string | number, maximum: AN? | string | n
 	const clamped: AN = AlephNum.clamp(result, minimum, maximum)
 
 	return clamped
+end
+
+-- // Helper Methods \\ --
+
+-- ~ AlephNum.fibo() ~
+-- ------------------
+-- [?] Gives the nth number from the Fibonniaci sequence.
+-- [>] Input a number or an AlephNumber.
+-- [<] Returns an AlephNum.
+function AlephNum.fibo(n: number | AN): AN
+	if n <= 0 then return 0 end
+	local m,k=1,0
+
+	for _ = 1, n-1 do
+		const new_m = m
+		m = m + k
+		k = new_m
+	end
+
+	return AlephNum.fromNumber(m)
+end
+
+-- ~ AlephNum.tribo() ~
+-- ------------------
+-- [?] Gives the nth number from the Tribonniaci sequence.
+-- [>] Input a number or an AlephNumber.
+-- [<] Returns an AlephNum.
+function AlephNum.tribo(n: number | AN): AN
+	if n <= 0 then return 0 end
+	local p,m,k = 1, 1, 0
+
+	for _ = 1, n-1 do
+		const new_m, new_k = m, k
+		m = m + k + p
+		k,p = new_m,new_k
+	end
+
+	return AlephNum.fromNumber(m)
+end
+
+-- ~ AlephNum.mean() ~
+-- ------------------
+-- [?] Gives the mean of an array of contiguous numbers or AlephNumbers.
+-- [>] Input an array of values of homogenous types
+-- [<] Returns an AlephNum.
+function AlephNum.mean<T>(n: { T }): AN
+	local sum = 0
+	const length = #n
+	for _,v in n do
+		local num = typeof(v)=="table" and AlephNum.toNumber(v) or v
+		sum += v
+	end
+	return AlephNum.fronNumber(sum // length)
+end
+
+-- ~ AlephNum.median() ~
+-- ------------------
+-- [?] Gives the median of an array of contiguous numbers or AlephNumbers.
+-- [>] Input an array of values of homogenous types
+-- [<] Returns an AlephNum.
+function AlephNum.median<T>(n: { T }): AN
+	const length = #n
+	if length % 2 == 0 then
+		return AlephNum.mean(n)
+	else
+		return AlephNum.fromNumber(n[math.ceil(n/2)])
+	end
+end
+
+-- ~ AlephNum.mode() ~
+-- ------------------
+-- [?] Gives the mode of an array of contiguous numbers or AlephNumbers.
+-- [>] Input an array of values of homogenous types
+-- [<] Returns an AlephNum.
+function AlephNum.mode<T>(n: { T }): AN
+	local c, mc = {}, 0
+	local mode = 0
+
+	for _,v in n do
+		c[v] = (c[v] or 0) + 1
+		if c[v] > mc then 
+			mc = v 
+			mode = v 
+		end
+	end
+
+	return AlephNum.fromNumber(mode)
 end
 
 -- // Operations \\ --
@@ -1456,7 +1552,7 @@ end
 -- [?] Divides two AlephNum (AN) numbers.
 -- [>] Input two (AN) values.
 -- [<] Returns an AlephNum (AN) number.
-function AlephNum.div(value1: AN? | string | number, value2: AN? | string | number): AN
+function AlephNum.div(value1: AN | number, value2: AN | number): AN
 	value1 = AlephNum.fix(value1)
 	value2 = AlephNum.fix(value2)
 
@@ -1485,6 +1581,41 @@ function AlephNum.div(value1: AN? | string | number, value2: AN? | string | numb
 
 	const newExp = value1.Exp - value2.Exp
 	const newMantissa = value1.Mantissa / value2.Mantissa
+
+	const newValue = tupleNum(newSign, value1.Layer, newExp, newMantissa)
+
+	return toMeta(newValue)
+end
+
+function AlephNum.idiv(value1: AN | number, value2: AN | number): AN 
+	value1 = AlephNum.fix(value1)
+	value2 = AlephNum.fix(value2)
+
+	if value1.Sign == 0 or value2.Sign == 0 then
+		if value2.Sign == 0 then
+			const scriptName: string, line: string = debugWhere()
+
+			warn(`┏ [AlephNum] Floor division by zero! Defaulting to zero.`)
+			warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+
+			if AlephNum.Config.StrictMode then
+				error(`Strict Mode enabled! Halting the script..`, 4)
+			end
+		end
+
+		return toMeta(zero)
+	end
+
+	const newSign = value1.Sign * value2.Sign
+
+	if value1.Layer == 0 and value2.Layer == 0 then
+		return toMeta(tupleNum(newSign, 0, value1.Exp // value2.Exp, 1))
+	elseif value1.Layer ~= value2.Layer then
+		value1, value2 = AlephNum.normalizeTwo(value1, value2)
+	end
+
+	const newExp = value1.Exp - value2.Exp
+	const newMantissa = value1.Mantissa // value2.Mantissa
 
 	const newValue = tupleNum(newSign, value1.Layer, newExp, newMantissa)
 
@@ -2168,6 +2299,10 @@ function AlephNum.__div(self: AN? | string | number, other: AN? | string | numbe
 	return AlephNum.div(self, other)
 end
 
+function AlephNum.__idiv(self: AN? | string | number, other: AN? | string | number): AN
+	return AlephNum.idiv(self, other)
+end
+
 function AlephNum.__pow(self: AN? | string | number, other: AN? | string | number): AN
 	return AlephNum.pow(self, other)
 end
@@ -2208,6 +2343,8 @@ end
 
 AlephNum.pi = AlephNum.fromNumber(math.pi)
 AlephNum.e = AlephNum.fromNumber(math.e)
+AlephNum.phi = AlephNum.fromNumber(math.phi)
+AlephNum.psi = AlephNum.fromNumber(-1/math.phi)
 
 -- // Types \\ --
 
