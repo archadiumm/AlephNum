@@ -1207,15 +1207,6 @@ function AlephNum.toScientific(value: AN? | string | number, digits: number?, th
 	return AlephNum.toString(value, { Digits = digits, Notation = "Scientific", Threshold = threshold })
 end
 
--- ~ AlephNum.toNumber() ~
--- ------------------
--- [?] Converts AlephNum (AN) numbers into a number type.
--- [>] Input an AlephNum number.
--- [<] Returns a number.
-function AlephNum.toNumber(value: AN): number
-	return 
-end
-
 -- ~ AlephNum.rand() ~
 -- ------------------
 -- [?] Gets a random AlephNum (AN) number.
@@ -1334,7 +1325,7 @@ function AlephNum.mean<T>(n: { T }): AN
 	const length = #n
 	for _,v in n do
 		local num = typeof(v)=="table" and AlephNum.toNumber(v) or v
-		sum += v
+		sum += num
 	end
 	return AlephNum.fronNumber(sum // length)
 end
