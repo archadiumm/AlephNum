@@ -13,7 +13,7 @@
 	 * Everything Upgrade Tree (and other incrementals)
 ]]
 
--- // Type Aliases \\ --
+-- // Types \\ --
 
 type ANConvertible = AN? | string | number
 type ComparisonOperator = "==" | ">=" | "<=" | ">" | "<" | "!=" | "~="
