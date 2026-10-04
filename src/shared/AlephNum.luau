@@ -13,39 +13,6 @@
 	 * Everything Upgrade Tree (and other incrementals)
 ]]
 
--- // Types \\ --
-
-type ANConvertible = AN? | string | number
-type ComparisonOperator = "==" | ">=" | "<=" | ">" | "<" | "!=" | "~="
-type ANProperty = "Sign" | "Exp" | "Layer" | "Mantissa"
-type Notation = "Scientific" | "Suffix" | "None"
-type SciNotation = "None" | "Scientific" | "Suffix"
-type ConfigKey = "StrictMode" | "Notation" | "Digits" | "Threshold" | "SciNotation" | "SciThreshold"
-
-type Config = {
-	StrictMode: boolean,
-	Notation: Notation,
-	SciNotation: SciNotation,
-	Threshold: number,
-	SciThreshold: number,
-	Digits: number,
-}
-
-type SuffixSets = {
-	sets: { string },
-	firstSuffixes: { string },
-	secondSuffixes: { string },
-	thirdSuffixes: { string },
-	multSuffixes: { string },
-}
-
-type ANTuple = {
-	Sign: number,
-	Layer: number | AN,
-	Exp: number,
-	Mantissa: number,
-}
-
 -- // Constants \\ --
 
 const AlephNum = {}
@@ -57,7 +24,7 @@ const HttpService = game:GetService("HttpService")
 const endpoint = "https://api.github.com/repos/archadiumm/alephnum/releases/latest"
 const versionName = "2.0.0"
 
-AlephNum.Config: Config = {
+AlephNum.Config = {
 	["StrictMode"] = false, -- If true, the script will halt instead of give warnings when things go wrong.
 
 	["Notation"] = "Scientific", -- Scientific (1e10), Suffix (1T), or None (100000000000000000000...)
@@ -81,7 +48,7 @@ const inf = (2 - 2 ^ -52) * 2 ^ 1023
 
 const compareStrings = { "==", ">=", "<=", ">", "<", "!=", "~=" }
 
-const suffixes: SuffixSets = {
+const suffixes = {
 	sets = { "k", "M", "B" },
 	firstSuffixes = { "U", "D", "T", "Qd", "Qn", "Sx", "Sp", "Oc", "No" },
 	secondSuffixes = { "De", "Vt", "Tg", "qg", "Qg", "sg", "Sg", "Og", "Ng" },
@@ -224,7 +191,7 @@ const function getRand(min: number, max: number): number
 	return rand:NextInteger(min, max)
 end
 
-const function toLength(number: number, length: number): string
+const function toLength(number: number, length: number)
 	number = math.round(number * 100)
 
 	local text: string = tostring(number)
@@ -240,7 +207,7 @@ const function toLength(number: number, length: number): string
 	end
 end
 
-const function checkVersion(): ()
+const function checkVersion()
 	const httpCheck, _ = pcall(function()
 		return HttpService:GetAsync("https://google.com/")
 	end)
@@ -295,14 +262,14 @@ const function isNIL(value: any): boolean
 	return (value == nil)
 end
 
-const function isAN(value: ANConvertible): boolean
+const function isAN(value: AN? | string | number): boolean
 	return (
 		typeof(value) == "table"
 		and (not isNIL(value["Sign"]) and not isNIL(value["Layer"]) and not isNIL(value["Exp"]))
 	)
 end
 
-const function toNumber(value: ANConvertible): number
+const function toNumber(value: AN? | string | number): number
 	if typeof(value) == "number" then
 		return value
 	end
@@ -318,7 +285,7 @@ const function toNumber(value: ANConvertible): number
 	end
 end
 
-const function getDepth(value: ANConvertible): number
+const function getDepth(value: AN? | string | number): number
 	if typeof(value) ~= "table" then
 		return 0
 	end
@@ -361,7 +328,7 @@ const function debugWhere(): (string, string)
 	return scriptName, line
 end
 
-const function correct(value: ANConvertible): AN
+const function correct(value: AN? | string | number): AN
 	if not value then
 		value = zero
 		return value
@@ -493,15 +460,15 @@ const function tupleNum(Sign: number, Layer: number, Exp: number, Mantissa: numb
 	return correct(new)
 end
 
-const function toMeta(value: ANConvertible): AN
+const function toMeta(value: AN? | string | number): AN
 	return setmetatable(value, AlephNum)
 end
 
 const function cmp(
-	value1: ANConvertible,
-	value2: ANConvertible,
-	name: ANProperty,
-	compareString: ComparisonOperator
+	value1: AN? | string | number,
+	value2: AN? | string | number,
+	name: "Sign" | "Exp" | "Layer" | "Mantissa",
+	compareString: "==" | ">=" | "<=" | ">" | "<" | "!=" | "~="
 ): boolean
 	local result: boolean = false
 
@@ -592,7 +559,7 @@ const function tierSuffix(tier: number, smallTierSuffix: boolean, exp: number): 
 	end
 end
 
-const function layerUp(value: ANConvertible): ANTuple
+const function layerUp(value: AN? | string | number): AN
 	if value.Layer == 0 then
 		return {
 			Sign = value.Sign,
@@ -671,7 +638,7 @@ end
 -- [>] Input a (string), (number) or (AN) value.
 -- [<] Returns an AlephNum (AN) number.
 --  *  [+] You can also use fromString or fromNumber instead depending on your use case.
-function AlephNum.convert(value: ANConvertible): AN
+function AlephNum.convert(value: string | number | AN): AN
 	local newValue: AN = nil
 
 	if not value then
@@ -697,7 +664,7 @@ end
 -- [>] Input any value type.
 -- [<] Returns an AlephNum (AN) number.
 --  * [+] Not reccomended to use really.
-function AlephNum.fix(value: any): AN
+function AlephNum.fix(value: any)
 	if isNIL(value) then
 		const scriptName: string, line: string = debugWhere()
 
@@ -725,7 +692,7 @@ end
 -- [>] Input any value type.
 -- [<] Returns an AlephNum (AN) number.
 --  * [+] Not reccomended to use really.
-function AlephNum.clone(value: ANConvertible): AN
+function AlephNum.clone(value: AN? | string | number): AN
 	if not isAN(value) then
 		value = AlephNum.fix(value)
 	end
@@ -738,7 +705,7 @@ end
 -- [>] Input any value type.
 -- [<] Returns an AlephNum (AN) number.
 --  * [+] Not reccomended to use really.
-function AlephNum.normalize(value: ANConvertible, layer: number | AN): AN
+function AlephNum.normalize(value: AN? | string | number, layer: number | AN): AN
 	if value.Layer ~= layer then
 		local stop: boolean
 
@@ -773,7 +740,7 @@ end
 -- [>] Input any value types.
 -- [<] Returns two AlephNum (AN) numbers.
 --  * [+] Not reccomended to use really.
-function AlephNum.normalizeTwo(value1: ANConvertible, value2: ANConvertible): (AN, AN)
+function AlephNum.normalizeTwo(value1: AN? | string | number, value2: AN? | string | number): (AN, AN)
 	if value1.Layer ~= value2.Layer then
 		local oneGreater: boolean
 
@@ -857,7 +824,7 @@ end
 -- [>] Input an AlephNum (AN) number.
 -- [<] Returns a number.
 --  *  [+] Due to leaderboard restrictions, the maximum and minimum amounts are about (-9e999 <-> 9e999)
-function AlephNum.toLeaderboard(value: ANConvertible): number
+function AlephNum.toLeaderboard(value: AN? | string | number): number
 	value = AlephNum.round(AlephNum.fix(value))
 	value = AlephNum.clamp(value, "-9e999", "9e999")
 
@@ -901,7 +868,10 @@ end
 -- ------------------
 -- [?] Changes settings in the AlephNum config.
 -- [>] Input a configName (string) and a (boolean) value.
-function AlephNum.setConfig(configName: ConfigKey, value: any): ()
+function AlephNum.setConfig(
+	configName: "StrictMode" | "Notation" | "Digits" | "Threshold" | "SciNotation" | "SciThreshold",
+	value: any
+): ()
 	const setting: any = AlephNum.Config[configName]
 
 	if not isNIL(setting) then
@@ -941,7 +911,7 @@ end
 -- [>] Input an AlephNum number.
 -- [<] Returns a luau number.
 --  *  [+] For AlephNumbers above Layer 1, they cannot be converted normally. (will return INF)
-function AlephNum.toNumber(value: ANConvertible): number
+function AlephNum.toNumber(value: AN? | string | number): number
 	value = AlephNum.fix(value)
 
 	if isAN(value.Layer) then
@@ -1032,4 +1002,1281 @@ function AlephNum.fromString(value: string): AN
 	return toMeta(newValue)
 end
 
-return AlephNum
+-- ~ AlephNum.toString() ~
+-- ------------------
+-- [?] Converts an AlephNum (AN) number into a string.
+-- [>] Input an AlephNum number and a table of options (optional).
+-- [<] Returns a string.
+--  *  [+] You can also change the default config using setConfig() instead of typing the options every time!
+function AlephNum.toString(
+	value: AN? | string | number,
+	options: {
+		Notation: "None" | "Scientific" | "Suffix",
+		Threshold: number,
+		SciThreshold: number,
+		Digits: number,
+	}?
+): string
+	value = AlephNum.fix(value)
+
+	options = options or {}
+	options.Notation = options.Notation or AlephNum.Config.Notation
+	options.Digits = math.abs(options.Digits or AlephNum.Config.Digits)
+	options.Threshold = math.abs(options.Threshold or AlephNum.Config.Threshold)
+	options.SciThreshold = math.abs(options.SciThreshold or AlephNum.Config.SciThreshold)
+
+	const notation: string = options.Notation
+	const digits: number = options.Digits
+	const threshold: number = math.max(options.Threshold, 1e3)
+	const sciThreshold: number = math.max(options.SciThreshold, 10)
+
+	const digitPower: number = math.pow(10, digits)
+
+	const abs = AlephNum.abs(value)
+
+	if notation == "None" or AlephNum.cmp(abs, threshold, "<") then
+		const toNum: number = value:toNumber()
+
+		if math.isinf(toNum) then
+			return "inf"
+		end
+
+		return tostring(math.round(toNum * digitPower) / digitPower)
+	end
+
+	if notation == "Scientific" then
+		if value.Layer == 0 then
+			local exp: number = math.floor(math.log10(value.Exp))
+
+			const baseMantissa: number = value.Exp / (10 ^ exp)
+			const formattedMantissa: number = (math.round(baseMantissa * digitPower) / digitPower) * value.Sign
+
+			if AlephNum.Config.SciNotation == "Suffix" and exp >= threshold then
+				return `{formattedMantissa}e{AlephNum.toSuffix(exp, digits, threshold)}`
+			else
+				return `{formattedMantissa}e{exp}`
+			end
+		elseif value.Layer == 1 then
+			local exp: number = math.floor(value.Exp)
+
+			const baseMantissa: number = value.Mantissa
+			const formattedMantissa: number = (math.round(baseMantissa * digitPower) / digitPower) * value.Sign
+
+			if AlephNum.Config.SciNotation == "Suffix" and exp >= threshold then
+				return `{formattedMantissa}e{AlephNum.toSuffix(exp, digits, threshold)}`
+			else
+				return `{formattedMantissa}e{exp}`
+			end
+		elseif value.Layer <= sciThreshold then
+			if AlephNum.Config.SciNotation == "Suffix" then
+				const mantissa = value.Mantissa
+				const formattedMantissa = (math.round(mantissa * digitPower) / digitPower) * value.Sign
+
+				local newExp: AN = AlephNum.fromNumber(value.Exp)
+
+				for _index: number = 1, value.Layer - 1 do
+					newExp = AlephNum.pow10(newExp)
+				end
+
+				return `{formattedMantissa}e{AlephNum.toSuffix(newExp, digits, threshold)}`
+			end
+
+			const clone: AN = AlephNum.clone(value)
+			local numbers: { number } = {}
+
+			while clone.Layer >= 0 do
+				if clone.Layer == value.Layer then
+					table.insert(numbers, math.floor(clone.Exp))
+				elseif clone.Layer == 0 then
+					table.insert(numbers, value.Mantissa)
+				elseif clone.Layer == value.Layer - 1 then
+					const floor = math.floor(clone.Exp)
+					const extra = clone.Exp - floor
+
+					table.insert(numbers, 1 * (10 ^ extra))
+				else
+					table.insert(numbers, 1)
+				end
+
+				clone.Layer -= 1
+			end
+
+			numbers = reverse(numbers)
+
+			local result: string = ""
+
+			for index: number, value: number in ipairs(numbers) do
+				const formattedValue = math.round(value * digitPower) / digitPower
+
+				result ..= formattedValue
+
+				if not isNIL(numbers[index + 1]) then
+					result ..= "e"
+				end
+			end
+
+			if value.Sign == -1 then
+				result = ("-" .. result)
+			end
+
+			return result
+		else
+			const mantissa = value.Mantissa
+			const formattedMantissa = (math.round(mantissa * digitPower) / digitPower) * value.Sign
+
+			if formattedMantissa == 1 then
+				return `10 ↑↑ {AlephNum.toScientific(value.Layer)}`
+			else
+				return `{formattedMantissa} x 10 ↑↑ {AlephNum.toScientific(value.Layer)}`
+			end
+		end
+	elseif notation == "Suffix" then -- unfinished
+		local baseTier: number
+
+		local log10: number = AlephNum.log10(value):toNumber()
+		local div3: number = log10 / 3
+
+		if value.Layer == 0 then
+			baseTier = math.floor(div3)
+		elseif value.Layer == 1 then
+			log10 = value.Exp
+			div3 = log10 / 3
+
+			baseTier = math.floor(div3)
+		else
+			return AlephNum.toScientific(value, digits, threshold)
+		end
+
+		const tier = math.floor(baseTier)
+		const extra = math.floor(log10) / 3 - tier
+
+		local mantissa: number
+
+		if value.Layer == 0 then
+			const exp: number = math.floor(math.log10(value.Exp))
+
+			const baseMantissa: number = value.Exp / (10 ^ exp)
+			mantissa = math.round(baseMantissa * digitPower) / digitPower
+		elseif value.Layer >= 1 then
+			const baseMantissa: number = value.Mantissa
+			mantissa = math.round(baseMantissa * digitPower) / digitPower
+		end
+
+		if mantissa >= 10 then
+			repeat
+				mantissa /= 10
+			until mantissa < 10
+		end
+
+		if extra >= 0.3 then
+			mantissa *= 10
+		end
+
+		if extra >= 0.6 then
+			mantissa *= 10
+		end
+
+		mantissa = (math.round(mantissa * digitPower) / digitPower) * value.Sign
+		return `{mantissa}{tierSuffix(tier, false, value.Exp)}`
+	else
+		const scriptName: string, line: string = debugWhere()
+
+		warn(`┏ [AlephNum] "{notation}" is not a valid Notation!`)
+		warn(`┃  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+		warn(`┗  ╸ See valid notations here:`, { "None", "Scientific", "Suffix" })
+
+		return tostring(value:toNumber())
+	end
+end
+
+-- ~ AlephNum.toSuffix() ~
+-- ------------------
+-- [?] Converts AlephNum (AN) numbers into strings.
+-- [>] Input an AlephNum number and some options (optional).
+-- [<] Returns a string. (10000 -> 10k for example)
+function AlephNum.toSuffix(value: AN? | string | number, digits: number?, threshold: number?)
+	return AlephNum.toString(value, { Digits = digits, Notation = "Suffix", Threshold = threshold })
+end
+
+-- ~ AlephNum.toScientific() ~
+-- ------------------
+-- [?] Converts AlephNum (AN) numbers into strings.
+-- [>] Input an AlephNum number and some options (optional).
+-- [<] Returns a string. (10000 -> 1e4 for example)
+function AlephNum.toScientific(value: AN? | string | number, digits: number?, threshold: number?)
+	return AlephNum.toString(value, { Digits = digits, Notation = "Scientific", Threshold = threshold })
+end
+
+-- ~ AlephNum.rand() ~
+-- ------------------
+-- [?] Gets a random AlephNum (AN) number.
+-- [>] Input two AlephNum values (minimum, maximum).
+-- [<] Returns an AlephNum between the two values.
+--  * [+] Inputting no minimum and no maximum makes it act like math.random()
+function AlephNum.rand(minimum: AN? | string | number, maximum: AN? | string | number): AN
+	if isNIL(minimum) and isNIL(maximum) then
+		return AlephNum.fromNumber(math.random())
+	end
+
+	minimum = AlephNum.min(minimum, maximum)
+	maximum = AlephNum.max(maximum, minimum)
+
+	if minimum.Layer == 0 and maximum.Layer == 0 then
+		return AlephNum.fromNumber(getRand(minimum, maximum))
+	end
+
+	local magnitude: number = 0
+	local logMin: number, logMax: number = minimum, maximum
+
+	if minimum.Layer > 0 or maximum.Layer > 0 then
+		repeat
+			logMin = AlephNum.log10(logMin)
+			logMax = AlephNum.log10(logMax)
+			magnitude += 1
+
+			if not math.isinf(logMin:toNumber()) and not math.isinf(logMax:toNumber()) then
+				logMin = logMin:toNumber()
+				logMax = logMax:toNumber()
+
+				break
+			end
+		until false
+	end
+
+	const qMantissa: number = getRand(minimum.Mantissa * minimum.Sign * 100, maximum.Mantissa * maximum.Sign * 100)
+	local randLog: number
+
+	if minimum.Sign == maximum.Sign then
+		randLog = getRand(logMin, logMax)
+	else
+		const qmSign = math.sign(qMantissa)
+
+		if qmSign == 0 then
+			return toMeta(zero)
+		else
+			if minimum.Sign == qmSign then
+				randLog = getRand(logMin, 0)
+			else
+				randLog = getRand(0, logMax)
+			end
+		end
+	end
+
+	const randMantissa: AN = AlephNum.div(qMantissa, 100)
+	local randExp: AN = AlephNum.fromNumber(randLog)
+
+	if magnitude > 0 then
+		for _index: number = 1, magnitude do
+			randExp:pow10()
+		end
+	end
+
+	const result: AN = AlephNum.mul(randMantissa, randExp)
+	const clamped: AN = AlephNum.clamp(result, minimum, maximum)
+
+	return clamped
+end
+
+-- // Operations \\ --
+
+-- ~ AlephNum.cmp() ~
+-- ------------------
+-- [?] Compares two AlephNum (AN) numbers.
+-- [>] Input two (AN) values and a (string) [">=" for example].
+-- [<] Returns a boolean value.
+function AlephNum.cmp(
+	value1: AN? | string | number,
+	value2: AN? | string | number,
+	compareString: "==" | ">=" | "<=" | ">" | "<" | "!=" | "~="
+): boolean
+	if not compareString then
+		compareString = "nil"
+	end
+
+	if compareString ~= "==" then
+		compareString = compareString:gsub("==", "=")
+	end
+
+	local result: boolean = false
+
+	if not table.find(compareStrings, compareString) then
+		const scriptName: string, line: string = debugWhere()
+
+		warn(`┏ [AlephNum] "{compareString}" is not a valid compareString! Defaulting to false.`)
+		warn(`┃  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+		warn(`┗  ╸ See valid compareStrings at:`, compareStrings)
+
+		if AlephNum.Config.StrictMode then
+			error(`Strict Mode enabled! Halting the script..`, 4)
+		end
+
+		return false
+	end
+
+	value1 = AlephNum.clone(AlephNum.fix(value1))
+	value2 = AlephNum.clone(AlephNum.fix(value2))
+
+	value1, value2 = AlephNum.normalizeTwo(value1, value2)
+
+	if compareString == "!=" or compareString == "~=" then
+		result = (
+			(value1.Layer ~= value2.Layer)
+			or (value1.Exp ~= value2.Exp)
+			or (value1.Sign ~= value2.Sign)
+			or (value1.Mantissa ~= value2.Mantissa)
+		)
+		return result
+	elseif compareString == "==" then
+		result = (
+			(value1.Layer == value2.Layer)
+			and (value1.Exp == value2.Exp)
+			and (value1.Sign == value2.Sign)
+			and (value1.Mantissa == value2.Mantissa)
+		)
+
+		return result
+	end
+
+	if value1.Sign == value2.Sign then
+		if value1.Layer == value2.Layer then
+			if value1.Exp == value2.Exp then
+				result = cmp(value1, value2, "Mantissa", compareString)
+			else
+				result = cmp(value1, value2, "Exp", compareString)
+			end
+		end
+	else
+		result = cmp(value1, value2, "Sign", compareString)
+	end
+
+	return result
+end
+
+-- ~ AlephNum.add() ~
+-- ------------------
+-- [?] Adds two AlephNum (AN) numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.add(value1: AN? | string | number, value2: AN? | string | number): AN
+	if typeof(value1) == "number" and typeof(value2) == "number" then
+		return AlephNum.fromNumber(value1 + value2)
+	end
+
+	local newValue: AN = zero
+
+	value1 = AlephNum.clone(AlephNum.fix(value1))
+	value2 = AlephNum.clone(AlephNum.fix(value2))
+
+	if value1.Sign == 0 then
+		return toMeta(value2)
+	elseif value2.Sign == 0 then
+		return toMeta(value1)
+	elseif value1.Layer == 0 and value2.Layer == 0 then
+		return toMeta(
+			tupleNum(0, 0, (value1.Exp * value1.Sign) + (value2.Exp * value2.Sign), (value1.Mantissa * value2.Mantissa))
+		)
+	end
+
+	value1, value2 = AlephNum.normalizeTwo(value1, value2)
+
+	if value1.Exp ~= value2.Exp then
+		const expDifference: number = math.abs(value1.Exp - value2.Exp)
+
+		if value1.Exp > value2.Exp then
+			value2.Mantissa *= math.pow(10, -expDifference)
+			value2.Exp = value1.Exp
+		else
+			value1.Mantissa *= math.pow(10, -expDifference)
+			value1.Exp = value2.Exp
+		end
+	end
+
+	value1.Mantissa *= value1.Sign
+	value2.Mantissa *= value2.Sign
+
+	const newMantissa: number = value1.Mantissa + value2.Mantissa
+
+	const newSign = math.sign(newMantissa)
+
+	newValue = tupleNum(newSign, value1.Layer, value1.Exp, math.abs(newMantissa))
+
+	return toMeta(newValue)
+end
+
+-- ~ AlephNum.sub() ~
+-- ------------------
+-- [?] Subtracts two AlephNum (AN) numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.sub(value1: AN? | string | number, value2: AN? | string | number): AN
+	value1 = AlephNum.fix(value1)
+	value2 = AlephNum.fix(value2)
+
+	if AlephNum.cmp(value1, value2, "==") then
+		return toMeta(zero)
+	end
+
+	const valueClone = AlephNum.clone(value2)
+
+	return AlephNum.add(value1, valueClone:neg())
+end
+
+-- ~ AlephNum.mul() ~
+-- ------------------
+-- [?] Multiplies two AlephNum (AN) numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.mul(value1: AN? | string | number, value2: AN? | string | number): AN
+	value1 = AlephNum.fix(value1)
+	value2 = AlephNum.fix(value2)
+
+	if value1.Sign == 0 or value2.Sign == 0 then
+		return toMeta(zero)
+	elseif value1.Layer == 0 and value1.Exp == 1 then
+		return toMeta(value2)
+	elseif value2.Layer == 0 and value2.Exp == 1 then
+		return toMeta(value1)
+	end
+
+	value1, value2 = AlephNum.normalizeTwo(value1, value2)
+
+	const newSign = value1.Sign * value2.Sign
+
+	if value1.Layer == 0 then
+		return toMeta(tupleNum(newSign, 0, value1.Exp * value2.Exp, 1))
+	end
+
+	const newExp = value1.Exp + value2.Exp
+	const newMantissa = value1.Mantissa * value2.Mantissa
+	return toMeta(tupleNum(newSign, value1.Layer, newExp, newMantissa))
+end
+
+-- ~ AlephNum.div() ~
+-- ------------------
+-- [?] Divides two AlephNum (AN) numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.div(value1: AN? | string | number, value2: AN? | string | number): AN
+	value1 = AlephNum.fix(value1)
+	value2 = AlephNum.fix(value2)
+
+	if value1.Sign == 0 or value2.Sign == 0 then
+		if value2.Sign == 0 then
+			const scriptName: string, line: string = debugWhere()
+
+			warn(`┏ [AlephNum] Division by zero! Defaulting to zero.`)
+			warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+
+			if AlephNum.Config.StrictMode then
+				error(`Strict Mode enabled! Halting the script..`, 4)
+			end
+		end
+
+		return toMeta(zero)
+	end
+
+	const newSign = value1.Sign * value2.Sign
+
+	if value1.Layer == 0 and value2.Layer == 0 then
+		return toMeta(tupleNum(newSign, 0, value1.Exp / value2.Exp, 1))
+	elseif value1.Layer ~= value2.Layer then
+		value1, value2 = AlephNum.normalizeTwo(value1, value2)
+	end
+
+	const newExp = value1.Exp - value2.Exp
+	const newMantissa = value1.Mantissa / value2.Mantissa
+
+	const newValue = tupleNum(newSign, value1.Layer, newExp, newMantissa)
+
+	return toMeta(newValue)
+end
+
+-- ~ AlephNum.mod() ~
+-- ------------------
+-- [?] Gets the modulo of two AlephNum (AN) numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.mod(value1: AN? | string | number, value2: AN? | string | number): AN
+	value1 = AlephNum.fix(value1)
+	value2 = AlephNum.fix(value2)
+
+	if value2.Sign == 0 then
+		const scriptName: string, line: string = debugWhere()
+
+		warn(`┏ [AlephNum] Modulo by zero! Defaulting to zero.`)
+		warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+		if AlephNum.Config.StrictMode then
+			error(`Strict Mode enabled! Halting the script..`, 4)
+		end
+		return toMeta(zero)
+	end
+
+	const div = AlephNum.div(value1, value2):floor()
+	const mul = AlephNum.mul(div, value2)
+
+	const result = AlephNum.sub(value1, mul)
+
+	return result
+end
+
+-- ~ AlephNum.log10() ~
+-- ------------------
+-- [?] Gets the log10 of an AN number.
+-- [>] Input an AlephNum (AN) value.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.log10(value: AN? | string | number): AN
+	value = AlephNum.fix(value)
+
+	if value.Layer == 0 then
+		return AlephNum.fromNumber(math.log10(value.Exp))
+	elseif value.Layer == 1 then
+		return AlephNum.fromNumber(value.Exp + math.log10(value.Mantissa))
+	else
+		return toMeta(tupleNum(value.Sign, value.Layer - 1, value.Exp, value.Mantissa))
+	end
+end
+
+-- ~ AlephNum.log() ~
+-- ------------------
+-- [?] Gets the log of an AN number.
+-- [>] Input two AlephNum (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.log(value: AN? | string | number, base: AN? | string | number): AN
+	return AlephNum.div(AlephNum.log10(value), AlephNum.log10(base))
+end
+
+-- ~ AlephNum.ln() ~
+-- ------------------
+-- [?] Gets the natural log of an AN number.
+-- [>] Input an AlephNum (AN) value.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.ln(value: AN? | string | number): AN
+	return AlephNum.log(value, AlephNum.e)
+end
+
+-- ~ AlephNum.slog() ~
+-- ------------------
+-- [?] Gets the super logarithm of an AN number.
+-- [>] Input two AlephNum (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.slog(value: AN? | string | number, base: AN? | string | number): AN
+	const height: AN = AlephNum.fromNumber(0)
+
+	value = AlephNum.fix(AlephNum.clone(value))
+	base = AlephNum.fix(AlephNum.clone(base))
+
+	while AlephNum.cmp(value, base, ">=") do
+		value = AlephNum.log(value, base)
+		height:add(1)
+
+		if (height % 10) == 0 then
+			task.wait()
+		end
+	end
+
+	value:sub(1)
+	base:sub(1)
+
+	return AlephNum.add(height, AlephNum.div(value, base))
+end
+
+-- ~ AlephNum.exp() ~
+-- ------------------
+-- [?] Gets the e^x of an AN number.
+-- [>] Input an AlephNum (AN) value.
+-- [<] Returns an AlephNum (AN) number.
+--  * [+] Keep in mind that this isn't precise at higher layers.
+function AlephNum.exp(value: AN? | string | number): AN
+	value = AlephNum.fix(value)
+
+	if value.Layer == 0 and value.Exp <= 709.782712893383996843822 then
+		return AlephNum.fromNumber(math.exp(value.Sign * value.Exp))
+	end
+
+	if value.Layer == 0 then
+		return AlephNum.fromTuple(1, 1, value.Sign * math.log10(math.e) * value.Exp, value.Mantissa)
+	elseif value.Layer == 1 then
+		return AlephNum.fromTuple(1, 2, (value.Sign * math.log10(math.log10(math.e))) + value.Exp, value.Mantissa)
+	else
+		return AlephNum.fromTuple(1, value.Layer + 1, value.Sign * value.Exp, value.Mantissa)
+	end
+end
+
+-- ~ AlephNum.pow10() ~
+-- ------------------
+-- [?] Gets the 10^x of an AN number.
+-- [>] Input an AlephNum (AN) value.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.pow10(value: AN? | string | number): AN
+	value = AlephNum.fix(value)
+
+	if value.Layer == 0 then
+		if value:is(0) then
+			return toMeta(zero)
+		end
+
+		if AlephNum.cmp(value, 308, "<") then
+			return AlephNum.fromNumber(value.Sign * (10 ^ value.Exp))
+		else
+			return AlephNum.fromTuple(value.Sign, 1, value.Exp, value.Mantissa)
+		end
+	else
+		return AlephNum.fromTuple(value.Sign, value.Layer + 1, value.Exp + math.log10(value.Mantissa), 1)
+	end
+end
+
+-- ~ AlephNum.pow() ~
+-- ------------------
+-- [?] Puts an (AN) to the power of another (AN).
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.pow(base: AN? | string | number, power: AN? | string | number): AN
+	power = AlephNum.fix(power)
+	base = AlephNum.fix(base)
+
+	const floatMath: number = base:toNumber() ^ power:toNumber()
+
+	if not math.isinf(floatMath) then
+		return AlephNum.fromNumber(floatMath)
+	elseif base.Sign < 0 then
+		const scriptName: string, line: string = debugWhere()
+
+		warn(`┏ [AlephNum] Tried to do pow with a negative base!`)
+		warn(`┃  ╸ Pow with negative bases is currently not supported.`)
+		warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+
+		return base
+	end
+
+	if power:is(0) then
+		return AlephNum.fromNumber(1)
+	elseif base:is(0) then
+		return toMeta(zero)
+	elseif power:is(1) then
+		return base
+	elseif base:is(10) then
+		return AlephNum.pow10(power)
+	end
+
+	const abslog10 = AlephNum.abs(AlephNum.log10(base))
+	const mul = AlephNum.mul(abslog10, power)
+
+	const pow10 = AlephNum.pow10(mul)
+
+	return pow10
+end
+
+-- ~ AlephNum.tetrate() ~
+-- ------------------
+-- [?] Tetrates an (AN) to the height of another (AN).
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+--  * [+] Tetration by decimals, negatives, and numbers above 1e10 are approximated.
+function AlephNum.tetrate(base: AN? | string | number, height: AN? | string | number): AN
+	base = AlephNum.fix(base)
+	height = AlephNum.fix(height)
+
+	if height.Layer >= 1 or height:isinf() then
+		const slog = AlephNum.slog(base, height):floor()
+
+		return AlephNum.fromTuple(base.Sign, (base.Layer + slog), base.Exp, base.Mantissa)
+	end
+
+	local result: AN = base
+
+	const heightNum: number = height:toNumber()
+	const floor: number = math.floor(heightNum)
+
+	if floor ~= heightNum then
+		const decimal: number = AlephNum.fromNumber(heightNum - floor)
+		const ceil: number = math.ceil(heightNum)
+
+		const lower: AN = AlephNum.tetrate(base, floor)
+		const upper: AN = AlephNum.tetrate(base, ceil)
+
+		const uml: AN = AlephNum.sub(upper, lower):mul(decimal)
+		result = AlephNum.add(lower, uml)
+	else
+		for _index: number = 2, heightNum do
+			result = AlephNum.pow(base, result)
+		end
+	end
+
+	return result
+end
+
+-- ~ AlephNum.root() ~
+-- ------------------
+-- [?] Gets a root of an AN number.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.root(value: AN? | string | number, root: AN? | string | number): AN
+	value = AlephNum.fix(value)
+	root = AlephNum.fix(root)
+
+	if root:is(0) then
+		const scriptName: string, line: string = debugWhere()
+
+		warn(`┏ [AlephNum] Root is zero! Defaulting to zero.`)
+		warn(`┗  ╸ Go to script: {scriptName} on line {line} to fix this.`)
+
+		if AlephNum.Config.StrictMode then
+			error(`Strict Mode enabled! Halting the script..`, 4)
+		end
+
+		return toMeta(zero)
+	elseif root:is(1) then
+		return value
+	else
+		return AlephNum.pow(value, AlephNum.div(1, root))
+	end
+end
+
+-- ~ AlephNum.sqrt() ~
+-- ------------------
+-- [?] Gets the square root of an AN number.
+-- [>] Input an AlephNum (AN) value.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.sqrt(value: AN? | string | number): AN
+	return AlephNum.root(value, 2)
+end
+
+-- ~ AlephNum.cbrt() ~
+-- ------------------
+-- [?] Gets the cube root of an AN number.
+-- [>] Input an AlephNum (AN) value.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.cbrt(value: AN? | string | number): AN
+	return AlephNum.root(value, 3)
+end
+
+-- ~ AlephNum.lerp() ~
+-- ------------------
+-- [?] Lerps an AlephNum value to an end position.
+-- [>] Input three (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.lerp(
+	value: AN? | string | number,
+	endValue: AN? | string | number,
+	lerpTime: AN? | string | number
+): AN
+	return AlephNum.add(value, AlephNum.mul(AlephNum.sub(endValue, value), lerpTime))
+end
+
+-- ~ AlephNum.fact() ~
+-- ------------------
+-- [?] Gets the factorial of an AlephNum (AN) number.
+-- [>] Input an AlephNum (AN) number.
+-- [<] Returns an AlephNum (AN) number.
+-- * [+] "precise" mode is a lot more precise, but it uses a lot more computation.
+function AlephNum.fact(value: AN? | string | number, precise: boolean): AN
+	value = AlephNum.fix(value)
+	precise = (precise or false)
+
+	const two = AlephNum.fromNumber(2)
+
+	if precise then
+		const one = AlephNum.fromNumber(1)
+		const three = AlephNum.fromNumber(3)
+		const four = AlephNum.fromNumber(4)
+		const six = AlephNum.fromNumber(6)
+		const eight = AlephNum.fromNumber(8)
+		const thirty = AlephNum.fromNumber(30)
+
+		return (
+			AlephNum.sqrt(AlephNum.pi)
+			* ((value / AlephNum.e) ^ value)
+			* ((eight * value ^ three + four * value ^ two + value + one / thirty) ^ (one / six))
+		)
+	end
+
+	const sqrt = AlephNum.sqrt(AlephNum.mul(two, AlephNum.pi) * value)
+	const pow = AlephNum.pow(AlephNum.div(value, AlephNum.e), value)
+
+	return AlephNum.mul(sqrt, pow)
+end
+
+-- ~ AlephNum.neg() ~
+-- ------------------
+-- [?] Gets the inverse of an AlephNum (AN) number.
+-- [>] Input an AlephNum (AN) number.
+-- [<] Returns an AlephNum (AN) number.
+-- * [+] For the nerds out there you can also use AlephNum.unm
+function AlephNum.neg(value: AN? | string | number)
+	value = AlephNum.fix(value)
+	value.Sign *= -1
+
+	return value
+end
+
+-- ~ AlephNum.unm() ~
+-- ------------------
+-- [?] Gets the inverse of an AlephNum (AN) number.
+-- [>] Input an AlephNum (AN) number.
+-- [<] Returns an AlephNum (AN) number.
+-- * [+] Nerd. Just use AlephNum.neg like a normal person.
+function AlephNum.unm(value: AN? | string | number)
+	value = AlephNum.fix(value)
+	value.Sign *= -1
+
+	return value
+end
+
+-- ~ AlephNum.abs() ~
+-- ------------------
+-- [?] Gets the absolute value of an AlephNum (AN) number.
+-- [>] Input an AlephNum (AN) number.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.abs(value: AN? | string | number)
+	value = AlephNum.fix(value)
+
+	const clone = AlephNum.clone(value)
+	clone.Sign = 1
+
+	if clone:is(0) then
+		clone.Sign = 0
+	end
+
+	return clone
+end
+
+-- ~ AlephNum.clamp() ~
+-- ------------------
+-- [?] Clamps an (AN) in between two other values.
+-- [>] Input three (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.clamp(
+	value: AN? | string | number,
+	lowerLimit: AN? | string | number,
+	upperLimit: AN? | string | number
+): AN
+	value = AlephNum.fix(value)
+	lowerLimit = AlephNum.fix(lowerLimit)
+	upperLimit = AlephNum.fix(upperLimit)
+
+	value = AlephNum.max(lowerLimit, AlephNum.min(value, upperLimit))
+
+	return value
+end
+
+-- ~ AlephNum.min() ~
+-- ------------------
+-- [?] Gets the minimum of two AlephNum numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.min(value1: AN? | string | number, value2: AN? | string | number): AN
+	if AlephNum.cmp(value1, value2, "<") then
+		return AlephNum.fix(value1)
+	else
+		return AlephNum.fix(value2)
+	end
+end
+
+-- ~ AlephNum.max() ~
+-- ------------------
+-- [?] Gets the maximum of two AlephNum numbers.
+-- [>] Input two (AN) values.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.max(value1: AN? | string | number, value2: AN? | string | number): AN
+	if AlephNum.cmp(value1, value2, ">") then
+		return AlephNum.fix(value1)
+	else
+		return AlephNum.fix(value2)
+	end
+end
+
+-- ~ AlephNum.floor() ~
+-- ------------------
+-- [?] Gets the floor of an AlephNum (AN) number.
+-- [>] Input an AlephNum (AN) number.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.floor(value: AN? | string | number)
+	value = AlephNum.fix(value)
+
+	if value.Layer >= 1 then
+		return AlephNum.fromTuple(value.Sign, value.Layer, value.Exp, math.floor(value.Mantissa))
+	else
+		const clone = AlephNum.clone(value)
+		clone.Exp = math.floor(clone.Exp)
+
+		return clone
+	end
+end
+
+-- ~ AlephNum.ceil() ~
+-- ------------------
+-- [?] Gets the ceil of an AlephNum (AN) number.
+-- [>] Input an AlephNum (AN) number.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.ceil(value: AN? | string | number)
+	value = AlephNum.fix(value)
+
+	if value.Layer >= 1 then
+		return AlephNum.fromTuple(value.Sign, value.Layer, value.Exp, math.ceil(value.Mantissa))
+	else
+		const clone = AlephNum.clone(value)
+		clone.Exp = math.ceil(clone.Exp)
+
+		return clone
+	end
+end
+
+-- ~ AlephNum.round() ~
+-- ------------------
+-- [?] Gets a rounded version of an AlephNum (AN) number.
+-- [>] Input an AlephNum (AN) number.
+-- [<] Returns an AlephNum (AN) number.
+function AlephNum.round(value: AN? | string | number)
+	value = AlephNum.fix(value)
+
+	if value.Layer >= 1 then
+		return AlephNum.fromTuple(value.Sign, value.Layer, value.Exp, math.round(value.Mantissa))
+	else
+		const clone = AlephNum.clone(value)
+		clone.Exp = math.round(clone.Exp)
+
+		return clone
+	end
+end
+
+-- ~ AlephNum.checkVersion() ~
+-- ------------------
+-- [?] Checks for the latest version, and prints if you have it or not.
+--  * [+] You need to have HTTP Requests enabled to use this.
+function AlephNum.checkVersion()
+	task.spawn(checkVersion)
+end
+
+-- // Aleph Functions \\ --
+
+function AN:update(result: AN? | string | number): AN
+	self = self :: AN
+	self.Mantissa = result.Mantissa
+	self.Exp = result.Exp
+	self.Layer = result.Layer
+	self.Sign = result.Sign
+
+	return self
+end
+
+function AN:add(value: AN? | string | number): AN
+	const result = AlephNum.add(self, AlephNum.clone(value))
+	self:update(result)
+
+	return self
+end
+
+function AN:sub(value: AN? | string | number): AN
+	const result = AlephNum.sub(self, AlephNum.clone(value))
+	self:update(result)
+
+	return self
+end
+
+function AN:mul(value: AN? | string | number): AN
+	const result = AlephNum.mul(self, AlephNum.clone(value))
+	self:update(result)
+
+	return self
+end
+
+function AN:div(value: AN? | string | number): AN
+	const result = AlephNum.div(self, AlephNum.clone(value))
+	self:update(result)
+
+	return self
+end
+
+function AN:pow(power: AN? | string | number): AN
+	const result = AlephNum.pow(self, AlephNum.clone(power))
+	self:update(result)
+
+	return self
+end
+
+function AN:pow10(): AN
+	const result = AlephNum.pow10(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:fact(precise: boolean): AN
+	const result = AlephNum.fact(self, precise)
+	self:update(result)
+
+	return self
+end
+
+function AN:mod(power: AN? | string | number): AN
+	const result = AlephNum.mod(self, AlephNum.clone(power))
+	self:update(result)
+
+	return self
+end
+
+function AN:log(base: AN? | string | number): AN
+	const result = AlephNum.log(self, AlephNum.clone(base))
+	self:update(result)
+
+	return self
+end
+
+function AN:log10(): AN
+	const result = AlephNum.log10(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:root(root: AN? | string | number): AN
+	const result = AlephNum.root(self, AlephNum.clone(root))
+	self:update(result)
+
+	return self
+end
+
+function AN:sqrt(): AN
+	const result = AlephNum.sqrt(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:cbrt(): AN
+	const result = AlephNum.cbrt(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:neg(): AN
+	const result = AlephNum.neg(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:unm(): AN
+	const result = AlephNum.unm(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:abs(): AN
+	const result = AlephNum.abs(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:floor(): AN
+	const result = AlephNum.floor(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:ceil(): AN
+	const result = AlephNum.ceil(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:clamp(lowerLimit: AN? | string | number, upperLimit: AN? | string | number): AN
+	const result = AlephNum.clamp(self, AlephNum.clone(lowerLimit), AlephNum.clone(upperLimit))
+	self:update(result)
+
+	return self
+end
+
+function AN:min(minimum: AN? | string | number): AN
+	const result = AlephNum.min(self, minimum)
+	self:update(result)
+
+	return self
+end
+
+function AN:max(maximum: AN? | string | number): AN
+	const result = AlephNum.max(self, maximum)
+	self:update(result)
+
+	return self
+end
+
+function AN:round(): AN
+	const result = AlephNum.round(self)
+	self:update(result)
+
+	return self
+end
+
+function AN:toNumber(): number
+	return AlephNum.toNumber(self)
+end
+
+function AN:toString(
+	options: { Notation: "None" | "Scientific" | "Suffix", Threshold: number, Digits: number }?
+): string
+	return AlephNum.toString(self, options)
+end
+
+function AN:toSuffix(digits: number?): string
+	return AlephNum.toSuffix(self, digits)
+end
+
+function AN:toScientific(digits: number?): string
+	return AlephNum.toScientific(self, digits)
+end
+
+function AN:toLeaderboard(): number
+	return AlephNum.toLeaderboard(self)
+end
+
+function AN:is(value: any): boolean
+	return AlephNum.cmp(self, value, "==")
+end
+
+function AN:lerp(endValue: AN? | string | number, lerpTime: AN? | string | number): AN
+	const result = AlephNum.lerp(self, endValue, lerpTime)
+	self:update(result)
+
+	return self
+end
+
+function AN:isinf(): boolean
+	return math.isinf(self:toNumber())
+end
+
+-- ~ Metamethods ~ --
+
+function AlephNum.__add(self: AN? | string | number, other: AN? | string | number): AN
+	return AlephNum.add(self, other)
+end
+
+function AlephNum.__sub(self: AN? | string | number, other: AN? | string | number): AN
+	return AlephNum.sub(self, other)
+end
+
+function AlephNum.__mul(self: AN? | string | number, other: AN? | string | number): AN
+	return AlephNum.mul(self, other)
+end
+
+function AlephNum.__div(self: AN? | string | number, other: AN? | string | number): AN
+	return AlephNum.div(self, other)
+end
+
+function AlephNum.__pow(self: AN? | string | number, other: AN? | string | number): AN
+	return AlephNum.pow(self, other)
+end
+
+function AlephNum.__mod(self: AN? | string | number, other: AN? | string | number): AN
+	return AlephNum.mod(self, other)
+end
+
+function AlephNum.__unm(self: AN? | string | number): AN
+	return AlephNum.unm(self)
+end
+
+function AlephNum.__eq(self: AN? | string | number, other: AN | number): boolean
+	return AlephNum.cmp(self, other, "==")
+end
+
+function AlephNum.__lt(self: AN? | string | number, other: AN | number): boolean
+	return AlephNum.cmp(self, other, "<")
+end
+
+function AlephNum.__le(self: AN? | string | number, other: AN | number): boolean
+	return AlephNum.cmp(self, other, "<=")
+end
+
+function AlephNum.__gt(self: AN? | string | number, other: AN | number): boolean
+	return AlephNum.cmp(self, other, ">")
+end
+
+function AlephNum.__ge(self: AN? | string | number, other: AN | number): boolean
+	return AlephNum.cmp(self, other, ">=")
+end
+
+function AlephNum.__neq(self: AN? | string | number, other: AN | number): boolean
+	return AlephNum.cmp(self, other, "~=")
+end
+
+-- ~ Math Constants ~ --
+
+AlephNum.pi = AlephNum.fromNumber(math.pi)
+AlephNum.e = AlephNum.fromNumber(math.e)
+
+-- // Types \\ --
+
+export type AN = setmetatable<{
+	Sign: number,
+	Layer: number,
+	Exp: number,
+	Mantissa: number,
+}, typeof(AlephNum)>
+
+return AlephNum :: {
+	new: typeof(AlephNum.new),
+	convert: typeof(AlephNum.convert),
+	rand: typeof(AlephNum.rand),
+
+	fromNumber: typeof(AlephNum.fromNumber),
+	fromString: typeof(AlephNum.fromString),
+	fromTuple: typeof(AlephNum.fromTuple),
+	fromLeaderboard: typeof(AlephNum.fromLeaderboard),
+
+	toNumber: typeof(AlephNum.toNumber),
+	toString: typeof(AlephNum.toString),
+	toSuffix: typeof(AlephNum.toSuffix),
+	toScientific: typeof(AlephNum.toScientific),
+	toLeaderboard: typeof(AlephNum.toLeaderboard),
+
+	add: typeof(AlephNum.add),
+	sub: typeof(AlephNum.sub),
+	mul: typeof(AlephNum.mul),
+	div: typeof(AlephNum.div),
+	pow: typeof(AlephNum.pow),
+	pow10: typeof(AlephNum.pow10),
+	tetrate: typeof(AlephNum.tetrate),
+	exp: typeof(AlephNum.exp),
+	mod: typeof(AlephNum.mod),
+	lerp: typeof(AlephNum.lerp),
+
+	fact: typeof(AlephNum.fact),
+
+	root: typeof(AlephNum.root),
+	sqrt: typeof(AlephNum.sqrt),
+	cbrt: typeof(AlephNum.cbrt),
+
+	clamp: typeof(AlephNum.clamp),
+	min: typeof(AlephNum.min),
+	max: typeof(AlephNum.max),
+
+	floor: typeof(AlephNum.floor),
+	round: typeof(AlephNum.round),
+	ceil: typeof(AlephNum.ceil),
+
+	log10: typeof(AlephNum.log10),
+	log: typeof(AlephNum.log),
+	ln: typeof(AlephNum.ln),
+	slog: typeof(AlephNum.slog),
+
+	neg: typeof(AlephNum.neg),
+	unm: typeof(AlephNum.unm),
+
+	clone: typeof(AlephNum.clone),
+	fix: typeof(AlephNum.fix),
+
+	cmp: typeof(AlephNum.cmp),
+
+	setConfig: typeof(AlephNum.setConfig),
+	Config: typeof(AlephNum.Config),
+
+	checkVersion: typeof(AlephNum.checkVersion),
+
+	pi: typeof(AlephNum.pi),
+	e: typeof(AlephNum.e),
+}
